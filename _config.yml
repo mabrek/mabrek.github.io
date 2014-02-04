@@ -1,0 +1,5 @@
+name: "Anton Lebedevich's Blog"
+markdown: redcarpet
+pygments: true
+safe: true
+lsi: false
