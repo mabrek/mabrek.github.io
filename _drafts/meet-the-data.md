@@ -36,12 +36,27 @@ The graph above is an example of a metric with visible quantization. It's not th
 
 ![quantization (dots)]({{ site.url }}/img/aspm/quantization-point.png)
 
-Dots are placed on horizontal lanes. Let's make a histogram with bin width 1.
+Dots are placed on horizontal lanes. Let's make a histogram with bin width 1:
 
 ![quantization (histogram 1)]({{ site.url }}/img/aspm/quantization-histogram-1.png)
 
-Nothing interesting. Let's make finer grain histogram (bin width 0.25).
+Nothing interesting. Let's make finer grain histogram (bin width 0.25):
 
 ![quantization (histogram 0.25)]({{ site.url }}/img/aspm/quantization-histogram-0.25.png)
 
 Now we see that the data has only integers.
+
+Examples of system changes visible on graphs.
+--------------------------------------------
+
+![mean shift]({{ site.url }}/img/aspm/mean-shift.png)
+
+It's a typical changepoint which is well known as a 'mean shift'. It's a cpu usage of data processing service when new data producer was added.
+
+![sudden drop]({{ site.url }}/img/aspm/sudden-drop.png)
+
+It's used disk space when large log file was deleted by logrotate. There is an almost linear trend (though it has some noise in it) followed by abrupt drop.
+
+![bimodal spike]({{ site.url }}/img/aspm/bimodal-spike.png)
+
+Closed tcp sockets per second. One system crached and a lot of clients got disconnected which resulted in large spike on the graph.
