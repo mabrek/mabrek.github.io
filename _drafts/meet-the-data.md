@@ -21,9 +21,12 @@ Statistical tools can spot some trends and recognize some patterns too. There is
 
 When I started learning statistics I found that real computer generated data is quite different from the ideal world of statistical models because of:
 
-* Noise caused by human actions. At any given point in time there is some change happening. System administrators do their job reconfiguring and restarting stuff, cron jobs are running, clients come and go. Sometimes it is a signal (e.g. mistake in reconfiguration which led to broken service) and sometimes it's a noise.
-* Outliers. In any given dataset there will be some points that don't make sense at all. They drive averages off their reasonable value and skrew up many algorithms.
+* Noise caused by human actions. At any given point in time there is some change happening. System administrators do their job reconfiguring and restarting stuff, cron jobs are running, clients come and go. Sometimes it is a signal (e.g. mistake in reconfiguration which led to broken service) and sometimes it's just a noise.
+* Outliers. In any given dataset there will be some points that don't make sense at all. They drive averages off their reasonable value and skrew up many algorithms. Typical example is a counter wrap around when it jumps from maximum available value to minimum.
 * Missing data. Monitoring systems have their own failures, network is not reliable so sometimes you have gaps in you metrics. Many methods simply don't handle gaps and you have to either put some made up values into gaps or use another methods.
 * Different sample rates. Some things change quickly so you measure them frequently and some don't. It makes no sense to report disk usage 10 times a second because it's impossible to fill up 2Tb drive in one second but you'll report network traffic quite frequently to find out micro-bursts that overflow buffers of you network switch.
 * Counter update frequencies. Virtual memory subsystem in Linux kernel has a configurable statistics update interval which is 1 second by default. You might get strange results if you try to fetch that data more that once a second like some counters will change only once a second and others will return non-zero value once a second.
-* Quantization. 
+* Quantization. Some things could be measured only in natural numbers (like process count) and some metrics have limited precision. It confuses algorithms that expect continuous distribution of values. Actually most computer generated metrics are integers.
+* Data distribution is not Gaussian. While it might be common in biology it's very rare in monitoring data.
+* The biggest problem is that in many cases noone knows what's normal for the system being monitored. When a web service replies with HTTP 50x codes for all requests and logs huge stacktraces then it's clearly broken but there might be several retry/fallback layers which hide underlying problems from end users.
+
