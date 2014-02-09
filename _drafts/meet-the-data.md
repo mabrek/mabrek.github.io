@@ -3,7 +3,7 @@ layout: post
 title: Meet the Data
 ---
 
-![Great Wall of Graphs]({{ site.url }}/img/aspm/great-wall.png)
+![great wall of graphs]({{ site.url }}/img/aspm/great-wall.png)
 
 Here's the way typical performance metrics look like. CPU utilization, used memory, network io, disk io, etc. are plotted as a time series. I'll put no labels on axes because horizontal line is always time and vertical line is a value of some metric. There are cases when it helps to know what kind of metric we are analyzing but in general it doesn't matter for statistical purposes. Sometimes you get bunch data when all you know about metrics is their name and only system developers can shed some light on meaning of particular metric.
 
@@ -30,3 +30,18 @@ When I started learning statistics I found that real computer generated data is 
 * Data distribution is not Gaussian. While it might be common in biology it's very rare in monitoring data.
 * The biggest problem is that in many cases noone knows what's normal for the system being monitored. When a web service replies with HTTP 50x codes for all requests and logs huge stacktraces then it's clearly broken but there might be several retry/fallback layers which hide underlying problems from end users.
 
+![quantization (path)]({{ site.url }}/img/aspm/quantization-path.png)
+
+The graph above is an example of a metric with visible quantization. It's not that obvious when all datapoints are connected by lines. Let's see how it looks like if lines are removed.
+
+![quantization (dots)]({{ site.url }}/img/aspm/quantization-point.png)
+
+Dots are placed on horizontal lanes. Let's make a histogram with bin width 1.
+
+![quantization (histogram 1)]({{ site.url }}/img/aspm/quantization-histogram-1.png)
+
+Nothing interesting. Let's make finer grain histogram (bin width 0.25).
+
+![quantization (histogram 0.25)]({{ site.url }}/img/aspm/quantization-histogram-0.25.png)
+
+Now we see that the data has only integers.
