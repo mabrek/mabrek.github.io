@@ -1,6 +1,7 @@
 ---
 layout: post
 title: Meet the Data
+tags: monitoring statistics
 ---
 
 ![great wall of graphs]({{ site.url }}/img/aspm/great-wall.png)
