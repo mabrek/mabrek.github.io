@@ -9,7 +9,7 @@ Here's the way typical performance metrics look like. CPU utilization, used memo
 
 This style of visualization when black dots are individual data points and red curve is an averaged over some period value will be used for graphs. It allows to quickly see both data distribution (shown by darkness of dot cloud) and its trend.
 
-There are several interesting things on the picture above. One service crached and was restarted which led to spikes on some graphs and drops on others. Another service is leaking memory which looks like nice linear growth.
+There are several interesting things on the picture above. One service crashed and was restarted which led to spikes on some graphs and drops on others. Another service is leaking memory which looks like nice linear growth.
 
 It helps a lot to have good understanding of a system (OS and application) when you are investigating performance problems. But sometimes you have no idea of what's going on. In that case you have to check a lot of metrics in hope to find something interesting and related to the problem.
 
@@ -22,7 +22,7 @@ Statistical tools can spot some trends and recognize some patterns too. There is
 When I started learning statistics I found that computer generated data is quite different from the ideal world of statistical models because of:
 
 * Noise. At any given point in time there is some change happening. System administrators do their job reconfiguring and restarting stuff, cron jobs are running, clients come and go. Sometimes it is a signal (e.g. mistake in reconfiguration which led to broken service) and sometimes it's just a noise. If your servers happen to be in a cloud then latencies might come out of nowhere unrelated to your user activity.
-* Outliers. In any given dataset there will be some points that don't make sense at all. They drive averages off their reasonable value and skrew up many algorithms. Typical example is a counter wrap around when it jumps from maximum value to minimum.
+* Outliers. In any given dataset there will be some points that don't make sense at all. They drive averages off their reasonable value and screw up many algorithms. Typical example is a counter wrap around when it jumps from maximum value to minimum.
 * Missing data. Monitoring systems have their own failures and network is not reliable so you have gaps in you metrics. Many methods simply don't handle gaps. You have to either put some made up values into gaps or use other methods.
 * Different sample rates. Some things change quickly so you measure them frequently and some don't. It makes no sense to report disk usage 10 times a second because it's impossible to fill up 2Tb drive in one second but you'll report network traffic quite frequently to find out micro-bursts that overflow buffers of you network switch.
 * Counter update frequencies. Virtual memory subsystem in Linux kernel has a configurable statistics update interval which is 1 second by default. You might get strange results if you try to fetch that data more that once a second. Some counters will change only once a second and others will return non-zero value only once a second.
