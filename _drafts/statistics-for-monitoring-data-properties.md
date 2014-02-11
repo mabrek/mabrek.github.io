@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Meet the Data
+title: "Statistics for Monitoring: Data Properties"
 tags: monitoring statistics
 ---
 
