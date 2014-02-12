@@ -14,4 +14,8 @@ It's a request rate on a system which was restarted. It was noisy but relatively
 
 In practice transient response means that you need to wait until system metrics become stable after you apply load to the system.
 
-Second point is a sampling rate of metrics measurements.
+Second point is a sampling rate of metrics measurements. For example if you measurement interval is larger than a wave duration on a graph above you won't see any waves. There might be several randomly placed spikes and you might not even notice that there was a restart because the system went down and up between measurements.
+
+The higher the sampling rate the better it is for load testing. Failure usually happens within seconds if not milliseconds. If you collect system metrics once in 5 minutes you'll get one point when the system is running good and then at the next point when it's completely down. Failures often have cascading effect when one disfunctional component brings down several others. With infrequent measurements you'll not be able to identify which one was the cause.
+
+Measurement and storage overhead put upper limit on a sampling rate. There are not so many opensource monitoring systems which are capable of receiving and storing thousands metrics per second. In practice it's possible to collect metrics with 1 second interval for relatively small systems (several hosts) and with 10 second interval when you have more than 10 machines. I hope that the progress will make that statement obsolete soon.
