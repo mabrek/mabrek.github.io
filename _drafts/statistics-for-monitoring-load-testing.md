@@ -31,3 +31,18 @@ I've cut two adjacent ranges from whole time of the test divided by the point wh
 
 ### Data filtration
 
+Thousands metrics is a lot even for simple algorithms so we need to reduce it. Closer look reveals that there are a lot of metrics which either don't change at all (allows to throw constant metrics away) or change not a lot.
+
+![low dispersion index]({{ site.url }}/img/aspm/low-dispersion-index.png)
+
+These metrics seems to have something going on until we take a look at their range starting from 0.
+
+![low dispersion index with 0]({{ site.url }}/img/aspm/low-dispersion-index-0.png)
+
+Now it's clear that nothing serious happens there. [Coefficient of variation](http://en.wikipedia.org/wiki/Coefficient_of_variation) is small for such metrics which allows to throw them away using simple criteria.
+
+apply system knowledge
+    tasks migrated by scheduler
+    dependent (disk used/free)
+    interface traffic < 10 packets/s
+    load average < 0.5
