@@ -31,8 +31,7 @@ When I started learning statistics I found that computer generated data is quite
 * Data distribution is not Gaussian. While it might be common in biology it's very rare in system metrics.
 * The biggest problem is that in many cases nobody knows what's normal for the system being monitored. When a web service replies with HTTP 50x codes for all requests and logs huge stacktraces then it's clearly broken but there might be several retry/fallback layers which hide underlying problems from end users.
 
-Examples
---------
+### Examples
 
 ![quantization (path)]({{ site.url }}/img/aspm/quantization-path.png)
 
