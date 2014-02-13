@@ -33,11 +33,11 @@ I've cut two adjacent ranges from whole time of the test divided by the point wh
 
 Thousands metrics is a lot even for simple algorithms so we need to reduce it. Closer look reveals that there are a lot of metrics which either don't change at all (allows to throw constant metrics away) or change not a lot.
 
-![low dispersion index]({{ site.url }}/img/aspm/low-dispersion-index.png)
+![low coefficient of variation]({{ site.url }}/img/aspm/low-coefficient-of-variation.png)
 
-These metrics seems to have something going on until we take a look at their range starting from 0.
+These metrics seem to have something going on until we take a look at their ranges starting from 0.
 
-![low dispersion index with 0]({{ site.url }}/img/aspm/low-dispersion-index-0.png)
+![low coefficient of variation with 0]({{ site.url }}/img/aspm/low-coefficient-of-variation-0.png)
 
 Now it's clear that nothing serious happens there. [Coefficient of variation](http://en.wikipedia.org/wiki/Coefficient_of_variation) is small for such metrics which allows to throw them away using simple criteria.
 
