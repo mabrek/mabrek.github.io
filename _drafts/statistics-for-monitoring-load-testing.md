@@ -39,10 +39,17 @@ These metrics seem to have something going on until we plot them with Y range st
 
 ![low coefficient of variation with 0]({{ site.url }}/img/aspm/low-coefficient-of-variation-0.png)
 
-Now it's clear that nothing serious happens there. [Coefficient of variation](http://en.wikipedia.org/wiki/Coefficient_of_variation) is small for such metrics which allows to throw them away using simple criteria.
+Now it's clear that nothing serious happens there. [Coefficient of variation](http://en.wikipedia.org/wiki/Coefficient_of_variation) is small for such metrics which allows to throw them away using simple threschold criteria.
 
-apply system knowledge
-    tasks migrated by scheduler
-    dependent (disk used/free)
-    interface traffic < 10 packets/s
-    load average < 0.5
+Tasks migrated by OS scheduler produce step-like changes (mean-shifts) on per-cpu usage graphs. It might be a problem when it happens too often but for coarce-grained analysis it's better to start with total cpu time instead of per-cpu.
+
+![disk used/free]({{ site.url }}/img/aspm/disk-used-free.png)
+
+Disk used and disk free space are dependend on each other and produce mirrored graphs so only one of them (disk free space) is really needed for analysis.
+
+Another group of thrown away metrics might be summarized as "idle system noise". There might be something like ntpd running on unused machine. It does something but we don't care because that kind of activity doesn't affect anything which allows to set maximum value threshold:
+
+* cpu user time < 5%
+* interface traffic < 10 packets/s
+* load average < 0.5
+* ...
