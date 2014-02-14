@@ -69,3 +69,5 @@ Then there are metrics which have different mean values on good range and bad:
 
 Top graph on this picture is a disk write rate on one host. Linear growth on good range is caused by logging of regular clients' activity (we were adding new clients almost linearly). Jump in bad range is caused by logging of errors happening when system became overloaded.
 
+It might be possible to compare standard deviations between good and bad ranges to find if something hits the limit which reduces variation but in my case it didn't find anything interesting.
+
