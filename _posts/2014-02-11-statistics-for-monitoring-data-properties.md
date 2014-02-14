@@ -60,3 +60,6 @@ It's used disk space when large log file was deleted by logrotate. There is an a
 ![bimodal spike]({{ site.url }}/img/aspm/bimodal-spike.png)
 
 Closed tcp sockets per second. One system crashed and a lot of clients got disconnected which resulted in large spike on the graph.
+
+
+next post: [Statistics for Monitoring: Load Testing (Tuning)]({{ site.url }}/blog/statistics-for-monitoring-load-testing/)
