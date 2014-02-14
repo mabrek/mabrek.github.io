@@ -71,3 +71,14 @@ Top graph on this picture is a disk write rate on one host. Linear growth on goo
 
 It might be possible to compare standard deviations between good and bad ranges to find if something hits the limit which reduces variation but in my case it didn't find anything interesting.
 
+In ideal world system should scale linearly which means that all metrics should either be constant or linearly dependend on load applied. Anything that grows faster than linear is a potential bottleneck.
+
+![nonlinear]({{ site.url }}/img/aspm/nonlinear.png)
+
+Left graph shows that there is something that exploded even before I noticed a change in connected clients numbers. It's a used memory on choked load balancer and it shows that it started to have problems even before clients noticed it.
+
+Graph in the middle has growth pattern that looks like quadratic in the good range and exloded in bad range. It's an amount of memory used for FS cache and it turns out that quadratic growth is an expected behaviour in good range. If there is a fixed amount of clients connected then rate of their requests is constant and logging rate is constant too which results in linear growth of FS cache memory until it eats all available RAM on linux. If we add more clients linearly in time it results in quadratic growth.
+
+Graph on the right side is a typical noise caught by nonlinear detection algoriths.
+
+The way I found nonlinear growth there involvels a little bit of cheating. Ideally I should have differentiated metrics by number of clients running but instead I used the fact that clients were added almost linearly in time and differentiated by time instead.
