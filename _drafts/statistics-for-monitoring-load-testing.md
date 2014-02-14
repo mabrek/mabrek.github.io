@@ -20,7 +20,7 @@ The higher the sampling rate the better it is for load testing. Failure usually 
 
 Measurement overhead and storage size puts upper limit on a sampling rate. There are not so many opensource monitoring systems which are capable of receiving and storing thousands metrics per second. In practice it's possible to collect metrics with 1 second interval for relatively small systems (several hosts) and with 10 second interval when you have more than 10 machines. I hope that the progress will make that statement obsolete soon.
 
-### Load test example
+### Load Test Example
 
 ![connected clients marked]({{ site.url }}/img/aspm/connected-clients-marked.png)
 Vertical axis is number of connected clients measured by a system itself and horizontal is time. Clients were connecting to the system in batches with several minutes interval to allow it to stabilize. These steps are quite clear in the left part of the graph. Then something broke and starting more clients didn't result in more clients being connected. Then even already connected clients started to drop off.
@@ -29,7 +29,7 @@ Vertical axis is number of connected clients measured by a system itself and hor
 
 I've cut two adjacent ranges from whole time of the test divided by the point when arrival rate of clients slows down. As we'll see later it's not that important to find that point in time exactly. Now we have two time ranges (good and bad) to compare and the whole set of metrics gathered. Let's find what's broken in the second time range by comparing it to the first.
 
-### Data filtration
+### Data Filtration
 
 Thousands metrics is a lot even for simple algorithms so we need to reduce their number somehow. Closer look reveals that there are a lot of metrics which either don't change at all (allows to throw constant metrics away) or change not a lot.
 
@@ -53,3 +53,19 @@ Another group of thrown away metrics might be summarized as "idle system noise".
 * interface traffic < 10 packets/s
 * load average < 0.5
 * ...
+
+
+### Finding Bottlenecks
+
+First thing to look for is if there something that was missing or constant in good range but appeared in bad range. It usually reveals error rate metrics.
+
+![errors]({{ site.url }}/img/aspm/was-constant.png)
+
+Theese metrics turned out to be various tcp connection errors (abort on data, abort on close, etc.) on overloaded load balancer.
+
+Then there are metrics which have different mean values on good range and bad:
+
+![changed mean]({{ site.url }}/img/aspm/changed-mean.png)
+
+Top graph on this picture is a disk write rate on one host. Linear growth on good range is caused by logging of regular clients' activity (we were adding new clients almost linearly). Jump in bad range is caused by logging of errors happening when system became overloaded.
+
