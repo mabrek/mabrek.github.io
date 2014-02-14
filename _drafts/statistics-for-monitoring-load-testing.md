@@ -27,7 +27,7 @@ Vertical axis is number of connected clients measured by a system itself and hor
 
 ![connected clients marked cut]({{ site.url }}/img/aspm/connected-clients-cut.png)
 
-I've cut two adjacent ranges from whole time of the test divided by the point when arrival rate of clients slows down. As we'll see later it's not that important to find that point in time exactly. Now we have two time ranges (good and bad) to compare and the whole set of metrics gathered. Let's find what's broken in the second time range by comparing it to the first.
+I've cut two adjacent ranges from whole time of the test divided by the point when arrival rate of clients slows down. As we'll see later it's not that important to find that point in time exactly. Now we have two time ranges ("good" and "bad") to compare and the whole set of metrics gathered. Let's find what's broken in the second time range by comparing it to the first.
 
 ### Data Filtration
 
@@ -39,13 +39,13 @@ These metrics seem to have something going on until we plot them with Y range st
 
 ![low coefficient of variation with 0]({{ site.url }}/img/aspm/low-coefficient-of-variation-0.png)
 
-Now it's clear that nothing serious happens there. [Coefficient of variation](http://en.wikipedia.org/wiki/Coefficient_of_variation) is small for such metrics which allows to throw them away using simple threschold criteria.
+Now it's clear that nothing serious happens there. [Coefficient of variation](http://en.wikipedia.org/wiki/Coefficient_of_variation) is small for such metrics which allows to throw them away using simple threshold criteria.
 
-Tasks migrated by OS scheduler produce step-like changes (mean-shifts) on per-cpu usage graphs. It might be a problem when it happens too often but for coarce-grained analysis it's better to start with total cpu time instead of per-cpu.
+Tasks migrated by OS scheduler produce step-like changes (mean-shifts) on per-cpu usage graphs. It might be a problem when it happens too often but for coarse-grained analysis it's better to start with total cpu time instead of per-cpu.
 
 ![disk used/free]({{ site.url }}/img/aspm/disk-used-free.png)
 
-Disk used and disk free space are dependend on each other and produce mirrored graphs so only one of them (disk free space) is really needed for analysis.
+Disk used and disk free space are dependent on each other and produce mirrored graphs so only one of them (disk free space) is really needed for analysis.
 
 Another group of thrown away metrics might be summarized as "idle system noise". There might be something like ntpd running on unused machine. It does something but we don't care because that kind of activity doesn't affect anything which allows to set maximum value threshold:
 
@@ -57,28 +57,28 @@ Another group of thrown away metrics might be summarized as "idle system noise".
 
 ### Finding Bottlenecks
 
-First thing to look for is if there something that was missing or constant in good range but appeared in bad range. It usually reveals error rate metrics.
+First thing to look for is if there something that was missing or constant in "good" range but appeared in "bad" range. It usually reveals error rate metrics.
 
 ![errors]({{ site.url }}/img/aspm/was-constant.png)
 
 Theese metrics turned out to be various tcp connection errors (abort on data, abort on close, etc.) on overloaded load balancer.
 
-Then there are metrics which have different mean values on good range and bad:
+Then there are metrics which have different mean values on "good" range and "bad":
 
 ![changed mean]({{ site.url }}/img/aspm/changed-mean.png)
 
-Top graph on this picture is a disk write rate on one host. Linear growth on good range is caused by logging of regular clients' activity (we were adding new clients almost linearly). Jump in bad range is caused by logging of errors happening when system became overloaded.
+Top graph on this picture is a disk write rate on one host. Linear growth on "good" range is caused by logging of regular clients' activity (we were adding new clients almost linearly). Jump in "bad" range is caused by logging of errors happening when system became overloaded.
 
-It might be possible to compare standard deviations between good and bad ranges to find if something hits the limit which reduces variation but in my case it didn't find anything interesting.
+It might be possible to compare standard deviations between "good" and "bad" ranges to find if something hits the limit which reduces variation but in my case it didn't find anything interesting.
 
-In ideal world system should scale linearly which means that all metrics should either be constant or linearly dependend on load applied. Anything that grows faster than linear is a potential bottleneck.
+In ideal world system should scale linearly which means that all metrics should either be constant or linearly dependent on load applied. Anything that grows faster than linear is a potential bottleneck.
 
 ![nonlinear]({{ site.url }}/img/aspm/nonlinear.png)
 
-Left graph shows that there is something that exploded even before I noticed a change in connected clients numbers. It's a used memory on choked load balancer and it shows that it started to have problems even before clients noticed it.
+Left graph shows that there is something that exploded even before I noticed a change in connected clients numbers. It's a used memory on choked load balancer and it shows that it started having problems even before clients noticed it.
 
-Graph in the middle has growth pattern that looks like quadratic in the good range and exloded in bad range. It's an amount of memory used for FS cache and it turns out that quadratic growth is an expected behaviour in good range. If there is a fixed amount of clients connected then rate of their requests is constant and logging rate is constant too which results in linear growth of FS cache memory until it eats all available RAM on linux. If we add more clients linearly in time it results in quadratic growth.
+Graph in the middle has growth pattern that looks like quadratic in the "good" range and exploded in "bad" range. It's an amount of memory used for FS cache and it turns out that quadratic growth is an expected behavior in "good" range. If there is a fixed amount of clients connected then rate of their requests is constant and logging rate is constant too which results in linear growth of FS cache memory until it eats all available RAM on linux. If we add more clients linearly in time it results in quadratic growth.
 
-Graph on the right side is a typical noise caught by nonlinear detection algoriths.
+Graph on the right side is a typical noise caught by nonlinear detection algorithms.
 
-The way I found nonlinear growth there involvels a little bit of cheating. Ideally I should have differentiated metrics by number of clients running but instead I used the fact that clients were added almost linearly in time and differentiated by time instead.
+The way I found nonlinear growth there involves a little bit of cheating. Ideally I should have differentiated metrics by number of clients running but instead I used the fact that clients were added almost linearly in time and differentiated by time instead.
