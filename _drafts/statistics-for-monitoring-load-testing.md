@@ -4,9 +4,9 @@ title: "Statistics for Monitoring: Load Testing (Tuning)"
 tags: monitoring statistics
 ---
 
-Usually there is a goal for a load testing otherwise why do that. It could be stated as "system should be able to handle X concurrently working users with latencies not higher than Y and zero errors on hardware not larger than Z". "Premature optimization is the root of all evil" principle usually leads to a system not being able to handle even X/10 users when development of most important features are done. In that case load testing transforms into iterative tuning process when you apply load to the system, find bottlenecks, optimize, rinse and repeat.
+Usually there is a goal for a load testing otherwise why do that. It could be stated as "system should be able to handle X concurrently working users with latencies not higher than Y and zero errors using hardware not larger than Z". "Premature optimization is the root of all evil" principle usually leads to a system not being able to handle even X/10 users when development of most important features is done. In that case load testing transforms into iterative tuning process when you apply load to the system, find bottlenecks, optimize, rinse and repeat until X emulated users are happy.
 
-There are some important points to be aware of. First is a transient response:
+There are some important points to be aware of. First is a [transient response](http://en.wikipedia.org/wiki/Transient_response):
 
 ![transient response]({{ site.url }}/img/aspm/request-rate-restart.png)
 
@@ -14,9 +14,9 @@ It's a request rate on a system which was restarted. It was noisy but relatively
 
 In practice transient response means that you need to wait until system metrics become stable after you apply load to the system.
 
-Second point is a sampling rate of metrics measurements. If interval between measurements is larger than a wave duration on a graph above you won't see any waves. There might be several randomly placed spikes and you might not even notice that there was a restart because the system could stop and start between two measurements.
+Second point is a [sampling rate](http://en.wikipedia.org/wiki/Sampling_rate) of metrics measurements. If interval between measurements is larger than a wave duration on a graph above you won't see any waves. There might be several randomly placed spikes and you might not even notice that there was a restart because the system could stop and start between two measurements.
 
-The higher the sampling rate the better it is for load testing. Failure usually happens within seconds (milliseconds). If you collect system metrics once in 5 minutes you'll get healthy system and at the next moment it's completely broken. Failures often have cascading effect when failure of one component brings down several others. With infrequent measurements you'll not be able to identify which one was first to fail.
+The higher the sampling rate the better it is for load testing. Failure usually happens within seconds (milliseconds). If you collect system metrics once in 5 minutes you'll get healthy system and at the next moment it's completely broken. Failure of one component often have cascading effect and brings down several others. With infrequent measurements you'll not be able to identify which one was first to fail.
 
 Measurement overhead and storage size puts upper limit on a sampling rate. There are not so many opensource monitoring systems which are capable of receiving and storing thousands metrics per second. In practice it's possible to collect metrics with 1 second interval for relatively small systems (several hosts) and with 10 second interval when you have more than 10 machines. I hope that the progress will make that statement obsolete soon.
 
@@ -27,7 +27,7 @@ Vertical axis is number of connected clients measured by a system itself and hor
 
 ![connected clients marked cut]({{ site.url }}/img/aspm/connected-clients-cut.png)
 
-I've cut two adjacent ranges from whole time of the test divided by the point when arrival rate of clients slows down. As we'll see later it's not that important to find that point in time exactly. Now we have two time ranges ("good" and "bad") to compare and the whole set of metrics gathered. Let's find what's broken in the second time range by comparing it to the first.
+I've cut two adjacent ranges from whole time of the test divided by the point when arrival rate of clients slowed down. As we'll see later it's not that important to find the point exactly because some metrics could change both before and after the point. Now we have two time ranges ("good" and "bad") to compare and the whole set of metrics gathered. Let's find what's broken in the second time range by comparing it to the first.
 
 ### Data Filtration
 
@@ -45,9 +45,9 @@ Tasks migrated by OS scheduler produce step-like changes (mean-shifts) on per-cp
 
 ![disk used/free]({{ site.url }}/img/aspm/disk-used-free.png)
 
-Disk used and disk free space are dependent on each other and produce mirrored graphs so only one of them (disk free space) is really needed for analysis.
+Disk used and disk free space (picture above) are dependent on each other and produce mirrored graphs so only one of them (disk free space) is really needed for analysis.
 
-Another group of thrown away metrics might be summarized as "idle system noise". There might be something like ntpd running on unused machine. It does something but we don't care because that kind of activity doesn't affect anything which allows to set maximum value threshold:
+Another group of thrown away metrics might be summarized as "idle system noise". There might be something like ntpd running on unused machine. It does its job but we don't care because that kind of activity doesn't affect anything which allows to set thresholds on maximum values:
 
 * cpu user time < 5%
 * interface traffic < 10 packets/s
@@ -57,27 +57,27 @@ Another group of thrown away metrics might be summarized as "idle system noise".
 
 ### Finding Bottlenecks
 
-First thing to look for is if there something that was missing or constant in "good" range but appeared in "bad" range. It usually reveals error rate metrics.
+First thing to look for is if there is something that was missing or constant in "good" range and then appeared or changed in "bad" range. It usually reveals error rate metrics.
 
 ![errors]({{ site.url }}/img/aspm/was-constant.png)
 
-Theese metrics turned out to be various tcp connection errors (abort on data, abort on close, etc.) on overloaded load balancer.
+These metrics turned out to be various tcp connection errors (abort on data, abort on close, etc.) on overloaded load balancer.
 
-Then there are metrics which have different mean values on "good" range and "bad":
+Then there are metrics which have different [mean](http://en.wikipedia.org/wiki/Arithmetic_mean) values on "good" and "bad" ranges:
 
 ![changed mean]({{ site.url }}/img/aspm/changed-mean.png)
 
 Top graph on this picture is a disk write rate on one host. Linear growth on "good" range is caused by logging of regular clients' activity (we were adding new clients almost linearly). Jump in "bad" range is caused by logging of errors happening when system became overloaded.
 
-It might be possible to compare standard deviations between "good" and "bad" ranges to find if something hits the limit which reduces variation but in my case it didn't find anything interesting.
+It might be possible to compare [standard deviation](http://en.wikipedia.org/wiki/Standard_deviation) between "good" and "bad" ranges to find if something hits the limit which reduces variation. In my case it didn't find anything interesting so no picture here.
 
 In ideal world system should scale linearly which means that all metrics should either be constant or linearly dependent on load applied. Anything that grows faster than linear is a potential bottleneck.
 
 ![nonlinear]({{ site.url }}/img/aspm/nonlinear.png)
 
-Left graph shows that there is something that exploded even before I noticed a change in connected clients numbers. It's a used memory on choked load balancer and it shows that it started having problems even before clients noticed it.
+Left graph shows that something exploded before I noticed a change in connected clients numbers. It's a used memory on choked load balancer and it shows that it started having problems even before clients noticed it.
 
-Graph in the middle has growth pattern that looks like quadratic in the "good" range and exploded in "bad" range. It's an amount of memory used for FS cache and it turns out that quadratic growth is an expected behavior in "good" range. If there is a fixed amount of clients connected then rate of their requests is constant and logging rate is constant too which results in linear growth of FS cache memory until it eats all available RAM on linux. If we add more clients linearly in time it results in quadratic growth.
+Graph in the middle has growth pattern that looks like [quadratic](http://en.wikipedia.org/wiki/Quadratic_function) in the "good" range and exploded in "bad" range. It's an amount of memory used for FS cache. It turns out that quadratic growth is expected in "good" range. If there is a fixed amount of clients connected then rate of their requests is constant and logging rate is constant too which results in linear growth of FS cache memory until it eats all available RAM on linux. If we add clients linearly in time it results in two linear trends multiplied.
 
 Graph on the right side is a typical noise caught by nonlinear detection algorithms.
 
