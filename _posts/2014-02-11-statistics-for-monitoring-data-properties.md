@@ -4,7 +4,7 @@ title: "Statistics for Monitoring: Data Properties"
 tags: monitoring statistics
 ---
 
-This post introduces performance metrics and their properties that affect choice of algorithms for anomaly detection, performance analysis, capacity planning. There will be several examples that illustrate typical properties and anomalies.
+_This post introduces performance metrics and their properties that affect choice of algorithms for anomaly detection, performance analysis, capacity planning. There will be several examples that illustrate typical properties and anomalies._
 
 ![great wall of graphs]({{ site.url }}/img/aspm/great-wall.png)
 
