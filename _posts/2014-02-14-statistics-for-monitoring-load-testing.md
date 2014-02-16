@@ -4,6 +4,8 @@ title: "Statistics for Monitoring: Load Testing (Tuning)"
 tags: monitoring statistics
 ---
 
+_Shows how simple statistical methods help to clean obtained data and find bottlenecks for load testing._
+
 Usually there is a goal for a load testing otherwise why do that. It could be stated as "system should be able to handle X concurrently working users with latencies not higher than Y and zero errors using hardware not larger than Z". "Premature optimization is the root of all evil" principle usually leads to a system not being able to handle even X/10 users when development of most important features is done. In that case load testing transforms into iterative tuning process when you apply load to the system, find bottlenecks, optimize, rinse and repeat until X emulated users are happy.
 
 There are some important points to be aware of. First is a [transient response](http://en.wikipedia.org/wiki/Transient_response):
@@ -69,16 +71,16 @@ Then there are metrics which have different [mean](http://en.wikipedia.org/wiki/
 
 Top graph on this picture is a disk write rate on one host. Linear growth on "good" range is caused by logging of regular clients' activity (we were adding new clients almost linearly). Jump in "bad" range is caused by logging of errors happening when system became overloaded.
 
-It might be possible to compare [standard deviation](http://en.wikipedia.org/wiki/Standard_deviation) between "good" and "bad" ranges to find if something hits the limit which reduces variation. In my case it didn't find anything interesting so no picture here.
+It might be possible to compare [standard deviation](http://en.wikipedia.org/wiki/Standard_deviation) between "good" and "bad" ranges to find if something hits the limit which reduces variation. In my case it didn't find anything interesting so no picture for it.
 
 In ideal world system should scale linearly which means that all metrics should either be constant or linearly dependent on load applied. Anything that grows faster than linear is a potential bottleneck.
 
 ![nonlinear]({{ site.url }}/img/aspm/nonlinear.png)
 
-Left graph shows that something exploded before I noticed a change in connected clients numbers. It's a used memory on choked load balancer and it shows that it started having problems even before clients noticed it.
+Left graph shows that something exploded before I noticed a change in connected clients numbers. It's an amount of memory used on load balancer and it started having problems even before clients noticed it.
 
-Graph in the middle has growth pattern that looks like [quadratic](http://en.wikipedia.org/wiki/Quadratic_function) in the "good" range and exploded in "bad" range. It's an amount of memory used for FS cache. It turns out that quadratic growth is expected in "good" range. If there is a fixed amount of clients connected then rate of their requests is constant and logging rate is constant too which results in linear growth of FS cache memory until it eats all available RAM on linux. If we add clients linearly in time it results in two linear trends multiplied.
+Graph in the middle has growth pattern that looks like [quadratic](http://en.wikipedia.org/wiki/Quadratic_function) in the "good" range and exploded in "bad" range. It's an amount of memory used for FS cache. It turns out that quadratic growth is expected in "good" range for some metrics. If there is a fixed amount of clients connected then rate of their requests is constant and logging rate is constant too which results in linear growth of FS cache memory until it eats all available RAM on linux. If we add clients linearly in time it results in two linear trends multiplied.
 
-Graph on the right side is a typical noise caught by nonlinear detection algorithms.
+Graph on the right side is a typical noise caught by nonlinear detection algorithms. It's nonlinear but has the same behaviour in both ranges.
 
 The way I found nonlinear growth there involves a little bit of cheating. Ideally I should have differentiated metrics by number of clients running but instead I used the fact that clients were added almost linearly in time and differentiated by time instead.
