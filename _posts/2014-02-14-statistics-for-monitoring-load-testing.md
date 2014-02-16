@@ -4,7 +4,7 @@ title: "Statistics for Monitoring: Load Testing (Tuning)"
 tags: monitoring statistics
 ---
 
-_Shows how simple statistical methods help to clean obtained data and find bottlenecks for load testing._
+_Shows how simple statistical methods can help clean obtained data and find bottlenecks for load testing._
 
 Usually there is a goal for a load testing otherwise why do that. It could be stated as "system should be able to handle X concurrently working users with latencies not higher than Y and zero errors using hardware not larger than Z". "Premature optimization is the root of all evil" principle usually leads to a system not being able to handle even X/10 users when development of most important features is done. In that case load testing transforms into iterative tuning process when you apply load to the system, find bottlenecks, optimize, rinse and repeat until X emulated users are happy.
 
