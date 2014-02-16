@@ -81,6 +81,6 @@ Left graph shows that something exploded before I noticed a change in connected 
 
 Graph in the middle has growth pattern that looks like [quadratic](http://en.wikipedia.org/wiki/Quadratic_function) in the "good" range and exploded in "bad" range. It's an amount of memory used for FS cache. It turns out that quadratic growth is expected in "good" range for some metrics. If there is a fixed amount of clients connected then rate of their requests is constant and logging rate is constant too which results in linear growth of FS cache memory until it eats all available RAM on linux. If we add clients linearly in time it results in two linear trends multiplied.
 
-Graph on the right side is a typical noise caught by nonlinear detection algorithms. It's nonlinear but has the same behaviour in both ranges.
+Graph on the right side is a typical noise caught by nonlinear detection algorithms. It's nonlinear but has the same behavior in both ranges.
 
 The way I found nonlinear growth there involves a little bit of cheating. Ideally I should have differentiated metrics by number of clients running but instead I used the fact that clients were added almost linearly in time and differentiated by time instead.
