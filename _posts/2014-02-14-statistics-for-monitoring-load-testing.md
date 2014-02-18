@@ -12,7 +12,7 @@ There are some important points to be aware of. First is a [transient response](
 
 ![transient response]({{ site.url }}/img/aspm/request-rate-restart.png)
 
-It's a request rate (vertical axis) on a system which was restarted. Horizontal axis here and on all following graphs is time. It was noisy but relatively stable in the left part then it dropped to zero when the system was down then something strange happened: requests started arriving in waves. Later it returned back to the same noisy behaviour.
+It's a request rate (vertical axis) on a system which was restarted. Horizontal axis here and on all following graphs is time. It was noisy but relatively stable in the left part then it dropped to zero when the system was down then something strange happened: requests started arriving in waves. Later it returned back to the same noisy behavior.
 
 In practice transient response means that you need to wait until system metrics become stable after you apply load to the system.
 
@@ -77,7 +77,7 @@ In ideal world system should scale linearly which means that all metrics should 
 
 ![nonlinear]({{ site.url }}/img/aspm/nonlinear.png)
 
-Left graph is an amount of memory used on load balancer. It changed behaviour from linear growth to explosion in "good" range but it didn't result in dropping clients immediately. Usually there is no single point in time when everything gets broken. The root cause of failure might flip earlier than we notice it on target (number of connected clients there) metric.
+Left graph is an amount of memory used on load balancer. It changed behavior from linear growth to explosion in "good" range but it didn't result in dropping clients immediately. Usually there is no single point in time when everything gets broken. The root cause of failure might flip earlier than we notice it on target (number of connected clients there) metric.
 
 Graph in the middle is an amount of memory used by OS filesystem cache on application server. It has growth pattern that looks like [quadratic](http://en.wikipedia.org/wiki/Quadratic_function) in "good" range and then it exploded in "bad" range. Constant load makes application server write logs with constant rate which fills FS cache linearly in time. If the load grows linearly too (as it was done in this case) then two linear trends multiply and result in quadratic growth which is OK there. Explosion in the "bad" range is caused by error logging which adds up to regular logs.
 
