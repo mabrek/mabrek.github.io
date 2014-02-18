@@ -83,4 +83,4 @@ Graph in the middle is an amount of memory used by OS filesystem cache on applic
 
 Graph on the right side is a typical example of noise caught by nonlinear detection algorithm. It's nonlinear but has the same behavior in both ranges which makes it irrelevant for us because it doesn't indicate bottlenecks.
 
-The way I found nonlinear growth there involves a little bit of cheating. Ideally I should have differentiated metrics by number of clients running but instead I used the fact that clients were added almost linearly in time and differentiated by time instead.
+The way I found nonlinear growth there involves a little bit of cheating. I used [ndiffs](http://www.inside-r.org/packages/cran/forecast/docs/ndiffs) function from [R](http://www.r-project.org/). Ideally I should have found derivative of each metric with respect to load applied (number of clients running) and checked if it's constant. Instead of that I used the fact that clients were added almost linearly in time and load could be replaced by time.
