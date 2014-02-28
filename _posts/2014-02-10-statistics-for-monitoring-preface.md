@@ -13,6 +13,3 @@ HighLoad++ 2013: "Applied Statistics for Performance Monitoring" [Abstract (Russ
 DevOps Moscow Meetup: "Statistical Tools for Performance Monitoring" [Video (Russian)](http://youtu.be/tk6wA-XUK1c), [Slides (English)](http://mabrek.github.io/anomaly-detection-devops2013/)
 
 MSK-IX Peering Forum 2013: "Monitoring: Statistical Methods for Anomaly Detection" [Video (Russian) MP4](http://www.peering-forum.ru/upload/iblock/ccd/ccdd5ed8c7e6f42eb3da87b538a1eb2d.mp4)
-
-
-next post: [Statistics for Monitoring: Data Properties]({{ site.url }}/blog/statistics-for-monitoring-data-properties/)

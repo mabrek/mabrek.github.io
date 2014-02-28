@@ -8,6 +8,16 @@ layout: default
 {{ content }}
 </div>
 
+<div class="posts">
+{% if page.previous %}
+<span>previous:</span> <a href="{{ page.previous.url }}">{{ page.previous.title }}</a>
+{% endif %}
+
+{% if page.next %}
+<span>next:</span> <a href="{{ page.next.url }}">{{ page.next.title }}</a>
+{% endif %}
+</div>
+
     <div id="disqus_thread"></div>
     <script type="text/javascript">
         /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
