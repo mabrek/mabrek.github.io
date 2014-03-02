@@ -28,7 +28,7 @@ The simplest way to find that spike is to calculate [moving average](http://en.w
 
 Black dots are data points, red is moving average, blue is three-sigma range around moving average. Values that fall off the range are considered anomalous.
 
-There are several problems visible on the graph. It's not possible to calculate ranges until there is enough data to fill calculation window. Bottom blue line is below 0 which doesn't make sence because socket close frequency can't go below 0. It's caused by non-gaussian distribution of data. Moving average and three-sigma range doesn't return to normal values until spike leaves the window.
+There are several problems visible on the graph. It's not possible to calculate ranges until there is enough data to fill calculation window. Bottom blue line is below 0 which doesn't make sense because socket close frequency can't go below 0. It's caused by non-Gaussian distribution of data. Moving average and three-sigma range doesn't return to normal values until spike leaves the window.
 
 [Exponentially-weighted moving average](http://en.wikipedia.org/wiki/EWMA_chart) is based on the similar principle but it produces ranges from the beginning and recovers from anomalies faster:
 
