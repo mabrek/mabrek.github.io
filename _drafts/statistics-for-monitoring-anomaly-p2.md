@@ -6,7 +6,7 @@ tags: monitoring statistics anomaly
 
 _Experimental anomaly detection methods based on autocorrelation and non-parametric 2 sample tests._
 
-[Autocorrelation](http://en.wikipedia.org/wiki/Autocorrelation) helps distinguishing between metrics that have changing behaviour and stable ones.
+[Autocorrelation](http://en.wikipedia.org/wiki/Autocorrelation) helps distinguishing between metrics that have changing behavior and stable ones.
 
 ![autocorrelation]({{ site.url }}/img/aspm/autocorrelation.png)
 
@@ -18,7 +18,7 @@ Control-charts based methods mentioned in [Part 1]({{ site.url }}/blog/statistic
 
 ![stable mean]({{ site.url }}/img/aspm/stable-mean.png)
 
-Both graphs clearly show different behaviour at different time intervals but changes in mean value (painted red) are quite small in comparison to standard deviation to be noticed by control-charts.
+Both graphs clearly show different behavior at different time intervals but changes in mean value (painted red) are quite small in comparison to standard deviation to be noticed by control-charts.
 
 Another bad example are metrics that represent request latency or size.
 
@@ -58,4 +58,4 @@ Drawbacks of the method:
 
 The main use case for the method is to point into time range when something (maybe good, maybe bad) happened and someone might need to read logs from that time.
 
-Another case is to find metrics that did change behaviour at some known time when we know that things got broken but don't know the exact cause of it.
+Another case is to find metrics that did change behavior at some known time when we know that things got broken but don't know the exact cause of it.
