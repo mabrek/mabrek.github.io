@@ -12,7 +12,7 @@ _Experimental anomaly detection methods based on autocorrelation and non-paramet
 
 These are different kinds of graphs that have high [Ljung–Box test](http://en.wikipedia.org/wiki/Ljung-Box_test) statistic which is based on autocorrelation coefficients at different lags.
 
-Ljung-Box test is good at finding graphs with non-flat trends and mean shifts. The downside is that it finds graphs with seasonal changes, oscillations, already aggregated data (like [load average](http://en.wikipedia.org/wiki/Load_%28computing%29) which is [EWMA](http://en.wikipedia.org/wiki/EWMA#Exponential_moving_average)). Bottom 2 graphs on the image above are load average and some oscillating metric.
+Ljung-Box test is good at finding graphs with non-flat trends and mean shifts. The downside is that it finds graphs with seasonal changes, oscillations, already aggregated data (like [load average](http://en.wikipedia.org/wiki/Load_%28computing%29) which is [EWMA](http://en.wikipedia.org/wiki/EWMA#Exponential_moving_average)). 2 bottom graphs on the image above are load average and some oscillating metric.
 
 Control-charts based methods mentioned in [Part 1]({{ site.url }}/blog/statistics-for-monitoring-anomaly-p1/) don't work for data with relatively stable mean (which changes fall withing [three-sigma](http://en.wikipedia.org/wiki/68%E2%80%9395%E2%80%9399.7_rule) range):
 
@@ -32,15 +32,15 @@ It's possible to find changes in such kinds of data by using [non-parametric](ht
 
 ![Kolmogorov Smirnov test]({{ site.url }}/img/aspm/ks-with-change.png)
 
-Here we select 2 adjacent time intervals (right side of the top graph) and compare data drawn from them using Kolmogorov-Smirnov test. Value of test statistic is put on the graph below on the line between those 2 intervals. Time intervals are quite large here (2 hours) so the bottom graph shows only large-scale changes. Two highest peaks on represent times when the heavy request cloud appeared and disappeared.
+Here we select 2 adjacent time intervals (right side of the top graph) and compare data drawn from them using Kolmogorov-Smirnov test. Value of test statistic is put on the graph below on the line between those 2 intervals. Time intervals are quite large here (2 hours) so the bottom graph shows only large-scale changes. Two highest peaks on it represent times when the heavy request cloud appeared and disappeared.
 
 ![Distribution change example]({{ site.url }}/img/aspm/ks-subject-2.png)
 
-There is a visible mean shift which is hidden from control charts by large standard deviation.
+There is a visible mean shift (left side) which is hidden from control charts by large standard deviation.
 
 ![Kolmogorov Smirnov test 2]({{ site.url }}/img/aspm/ks-with-change-2.png)
 
-The maximum of Kolmogorov-Smirnov test statistic points exactly at the point of change.
+The maximum of Kolmogorov-Smirnov test statistic (bottom graph) points exactly to the point of change.
 
 This method (find maximum of 2-sample test statistics between 2 adjacent sliding windows) is:
 
@@ -58,4 +58,4 @@ Drawbacks of the method:
 
 The main use case for the method is to point into time range when something (maybe good, maybe bad) happened and someone might need to read logs from that time.
 
-Another case is to find metrics that did change behavior at some known time when we know that things got broken but don't know the exact cause of it.
+Another case is to find metrics that did change behavior at some known time when we know that things got broken but don't know exactly why.
