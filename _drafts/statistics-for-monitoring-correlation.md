@@ -20,7 +20,13 @@ There are several methods for finding similar time series:
  * [discrete Fourier transform (DFT)](http://en.wikipedia.org/wiki/Discrete_Fourier_transform)
  * [discrete wavelet transform (DWT)](http://en.wikipedia.org/wiki/Discrete_wavelet_transform)
 
+Actually there are much more of them for different applications and the list above contains only most popular ones. The good news is that performance monitoring data is quite small in comparison with ECG and EEG data. It gives a hope that more effective methods from medical area will be used for performance monitoring too.
+
 First two are quite simple to understand and fast. [Pearson correlation coefficient](http://en.wikipedia.org/wiki/Pearson_product-moment_correlation_coefficient) has a simple [relation](http://www.analytictech.com/mb876/handouts/distance_and_correlation.htm) to [Euclidean distance](http://en.wikipedia.org/wiki/Euclidean_distance) for normalized data. Absolute value of correlation coefficient allows to find mirrored graphs (like disk used vs. disk free space).
 
 [Dynamic time warping](http://en.wikipedia.org/wiki/Dynamic_time_warping) has a nice property to find slightly misaligned in time graphs but its implementation in R was quite slow when I was experimenting with it.
+
+My experiments with DFT failed because computer-generated metrics rarely have sparse representation in frequency domain.
+
+DWT looks promising because Haar wavelet has very similar to step function shape usually found in performance metrics but I haven't tried it yet.
 
