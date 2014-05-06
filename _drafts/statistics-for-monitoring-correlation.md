@@ -26,7 +26,7 @@ First two are quite simple to understand and fast. [Pearson correlation coeffici
 
 [Dynamic time warping](http://en.wikipedia.org/wiki/Dynamic_time_warping) has a nice property to find slightly misaligned in time graphs but its implementation in R was quite slow when I was experimenting with it.
 
-My experiments with DFT failed because computer-generated metrics rarely have sparse representation in frequency domain.
+My experiments with DFT failed because computer-generated metrics rarely have sparse representation in frequency domain. Their spectra are wide and contain a lot of frequencies. There is not so many periodical things going on in online request processing (maybe cron jobs). While there are periodical daily/weekly/yearly changes the typical need to compare graphs is limited by short ranges (hours or even minutes).
 
 DWT looks promising because Haar wavelet has very similar to step function shape usually found in performance metrics but I haven't tried it yet.
 
