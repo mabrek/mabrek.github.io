@@ -30,3 +30,16 @@ My experiments with DFT failed because computer-generated metrics rarely have sp
 
 DWT looks promising because Haar wavelet's shape is very similar to typical steps usually found in performance metrics but I haven't tried it yet.
 
+Clustering
+
+
+PAM
+
+    non-euclidean (ultrametric) space
+    many small clusters
+    local clustering around events
+    false positives
+        cron jobs (log rotation)
+        human actions (restarts, reconfigurations)
+        cache expirations
+        …
