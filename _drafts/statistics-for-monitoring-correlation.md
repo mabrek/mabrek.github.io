@@ -6,8 +6,6 @@ tags: monitoring statistics
 
 _Finding metrics with similar behavior and analyzing internal system dependencies._
 
-### Similar graphs
-
 There are a lot of situations when you see a sudden change in one metric (e.g. increased latency or error rate) and you need to find what caused it. It could be solved by applying prior knowledge about dependencies in the system but there are still a lot of unknowns especially in case of poorly documented legacy applications. It would be great to have a tool that given a metric will produce list of other metrics it depends on based on time series data.
 
 There are some papers (["Causality and graphical models in time series analysis"](http://galton.uchicago.edu/~eichler/hsss.pdf)) suggesting that it's possible to infer dependencies from time series data but I haven't done any experiments with it yet (R package [`vars`](http://cran.r-project.org/web/packages/vars/vignettes/vars.pdf) might be useful).
@@ -54,9 +52,7 @@ This is another cluster with different contents. Top right graph looks like peri
 
 [Spearman's rank correlation coefficient](http://en.wikipedia.org/wiki/Spearman%27s_rank_correlation_coefficient) was used to create these clusters because it allows to catch non-linear relationships between metrics. It's more computationally difficult than Pearson but produces better results because there are a lot of non-linear dependencies in computer-generated data. It allowed me to find misconfigured cache expiration which wiped too much data from the cache and periodically overloaded service behind the cache.
 
-
-### Problems with clustering monitoring data
-
+Problems with clustering monitoring data:
 
  * Non-euclidean ([ultrametric](http://en.wikipedia.org/wiki/Ultrametric_space)) space. Many clustering algorithms require distance function to be [Euclidean metric](http://en.wikipedia.org/wiki/Euclidean_metric) while useful time series comparison functions (like correlation coefficient) are not. This limits the set of available algorithms.
  * Many small clusters. There a lot of almost independent metrics which produce large number of small clusters. It makes harder to set number of clusters for algorithms that require it.
@@ -66,3 +62,6 @@ This is another cluster with different contents. Top right graph looks like peri
      * human actions (restarts, reconfigurations)
      * cache expirations
 
+it tells obvious things but sometimes not so obvious.
+
+Practical applications
