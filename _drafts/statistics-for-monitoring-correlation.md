@@ -22,13 +22,13 @@ There are several methods for finding similar time series:
  * [discrete Fourier transform (DFT)](http://en.wikipedia.org/wiki/Discrete_Fourier_transform)
  * [discrete wavelet transform (DWT)](http://en.wikipedia.org/wiki/Discrete_wavelet_transform)
 
-Actually there are much more of them targeted at different use cases and the list above contains only most popular. The good news is that performance monitoring data is quite small in comparison with ECG and EEG data. It gives a hope that more effective methods from medical field will be used for performance monitoring too.
+Actually there are much more targeted at different use cases and the list above contains only most popular. The good news is that performance monitoring data is quite small in comparison with ECG and EEG data. It gives a hope that more effective methods from medical field will be used for performance monitoring too.
 
 First two are quite simple to understand and fast in runtime. [Pearson correlation coefficient](http://en.wikipedia.org/wiki/Pearson_product-moment_correlation_coefficient) has a simple [relation](http://www.analytictech.com/mb876/handouts/distance_and_correlation.htm) to [Euclidean distance](http://en.wikipedia.org/wiki/Euclidean_distance) for normalized data. Absolute value of correlation coefficient allows to find mirrored graphs (like disk used vs. disk free space).
 
 [Dynamic time warping](http://en.wikipedia.org/wiki/Dynamic_time_warping) has a nice property to find slightly misaligned in time graphs but its R implementation was too slow to be useful when I tried it.
 
-My experiments with DFT failed because computer-generated metrics rarely have sparse representation in frequency domain. Their spectra are wide and contain a lot of frequencies. There is not so many periodical things going on in online request processing (maybe cron jobs). There are periodical daily/weekly/yearly changes but the typical need to compare graphs is limited by short ranges (hours or even minutes).
+My experiments with DFT failed because computer-generated metrics rarely have sparse representation in frequency domain. Their spectra are wide and contain a lot of frequencies. There is not so many periodical things (maybe cron jobs) going on in online request processing. There are seasonal daily/weekly/yearly changes but the typical need to compare graphs is limited by short ranges (hours or even minutes).
 
 DWT looks promising because Haar wavelet's shape is very similar to typical steps usually found in performance metrics but I haven't tried it yet.
 
