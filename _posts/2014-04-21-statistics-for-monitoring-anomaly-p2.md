@@ -56,6 +56,4 @@ Drawbacks of the method:
  * computational complexity;
  * bad for alerting because of false positives.
 
-The main use case for the method is to point into time range when something (maybe good, maybe bad) happened and someone might need to read logs from that time.
-
-Another case is to find metrics that did change behavior at some known time when we know that things got broken but don't know exactly why.
+The main use case for the method is to find the time range when something (maybe good, maybe bad) happened and someone might need to read logs from that time. Another case is to find metrics that did change behavior at some known time when we know that things got broken but don't know exactly why.
