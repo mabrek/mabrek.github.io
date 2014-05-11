@@ -6,9 +6,9 @@ tags: monitoring statistics
 
 _Finding metrics with similar behavior and analyzing internal system dependencies._
 
-There are a lot of situations when you see a sudden change in one metric (e.g. increased latency or error rate) and you need to find what caused it. It could be solved by applying prior knowledge about dependencies in the system but there are still a lot of unknowns especially in case of poorly documented legacy applications. It would be great to have a tool that given a metric will produce list of other metrics it depends on based on time series data.
+There are a lot of situations when you see an unexpected change in one metric (e.g. increased latency or error rate) and need to find what caused it. It could be solved by applying prior knowledge about dependencies in the system but there are still a lot of unknowns especially in case of poorly documented legacy applications. It would be great to have a tool that given a metric produces a list of other metrics it depends on based on time series data.
 
-There are some papers (["Causality and graphical models in time series analysis"](http://galton.uchicago.edu/~eichler/hsss.pdf)) suggesting that it's possible to infer dependencies from time series data but I haven't done any experiments with it yet (R package [`vars`](http://cran.r-project.org/web/packages/vars/vignettes/vars.pdf) might be useful).
+There are some papers (e.g. ["Causality and graphical models in time series analysis"](http://galton.uchicago.edu/~eichler/hsss.pdf)) suggesting that it's possible to infer dependencies from time series data but I haven't done any experiments with it yet (R package [`vars`](http://cran.r-project.org/web/packages/vars/vignettes/vars.pdf) might be useful).
 
 For practical purposes it's often enough to find metrics that have similarly shaped graphs. Changes in computer systems are quite fast (seconds or milliseconds) to propagate between components making it impossible to find out what changed first with typical polling intervals (10s, 60s) so it looks like dependent metrics are moving at the same time.
 
@@ -29,8 +29,6 @@ First two are quite simple to understand and fast in runtime. [Pearson correlati
 My experiments with DFT failed because computer-generated metrics rarely have sparse representation in frequency domain. Their spectra are wide and contain a lot of frequencies. There is not so many periodical things (maybe cron jobs) going on in online request processing. There are seasonal daily/weekly/yearly changes but the typical need to compare graphs is limited by short ranges (hours or even minutes).
 
 DWT looks promising because Haar wavelet's shape is very similar to typical steps usually found in performance metrics but I haven't tried it yet.
-
-### Clustering
 
 Sometimes production system misbehaves but you have no idea where to start from because known dependencies and similar graphs for usual suspects (metrics like error rate) lead nowhere. Going through all metrics and watching all graphs works for small systems (up to several hundreds metrics) but doesn't work when there are thousands metrics. While trying to do that I noticed that many graphs are almost the same making it unnecessary to get through all of them.
 
@@ -55,13 +53,14 @@ This is another cluster with different contents. Top right graph looks like peri
 Problems with clustering monitoring data:
 
  * Non-euclidean ([ultrametric](http://en.wikipedia.org/wiki/Ultrametric_space)) space. Many clustering algorithms require distance function to be [Euclidean metric](http://en.wikipedia.org/wiki/Euclidean_metric) while useful time series comparison functions (like correlation coefficient) are not. This limits the set of available algorithms.
+
  * Many small clusters. There a lot of almost independent metrics which produce large number of small clusters. It makes harder to set number of clusters for algorithms that require it.
- * Local clustering around events. Each event like service restart tend to gather a lot of metrics into single big cluster. It might be good for investigating outages but it's bad for finding dependencies in a steady state. It's better to choose quiet time range without any significant events for the latter case.
+
+ * Local clusters around events. Each event like service restart tend to gather a lot of metrics into single big cluster. It might be good for investigating outages but it's bad for finding dependencies in a steady state. It's better to choose quiet time range without any significant events for the latter case.
+
  * Correlations which are not dependencies. If two metrics rise and fall at the same time their correlation coefficient will be close to 1 (or -1 for mirrored graphs) but [correlation doesn't imply causation](http://en.wikipedia.org/wiki/Correlation_does_not_imply_causation). There are a lot of cases where independent events happen at the same time like:
      * cron jobs (log rotation)
      * human actions (restarts, reconfigurations)
      * cache expirations
 
-it tells obvious things but sometimes not so obvious.
-
-Practical applications
+Cluster structure often tells obvious things like grouping all metrics related to a single service into one cluster but sometimes not so obvious like dependency between latency of one application and disk IO of another unrelated one which turned out to be using the same storage array.
