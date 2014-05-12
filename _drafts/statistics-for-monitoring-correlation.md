@@ -56,11 +56,11 @@ Problems with clustering monitoring data:
 
  * Many small clusters. There a lot of almost independent metrics which produce large number of small clusters. It makes harder to set number of clusters for algorithms that require it. If you set number of clusters too low there will be a lot of unrelated noise in each cluster but if you set the number too high the original purpose (to reduce amount of graphs to watch) will be missed.
 
- * Local clusters around events. Each event like service restart tend to gather a lot of metrics into single big cluster. It might be good for investigating outages but it's bad for finding dependencies in a steady state. It's better to choose quiet time range without any significant events for the latter case.
+ * Local clusters around events. Each event like service restart tend to gather a lot of metrics into single big cluster. It might be good for investigating outages but it's bad for finding dependencies in a steady state. It's better to choose quiet time range without any significant events for the latter use case.
 
- * Correlations which are not dependencies. If two metrics rise and fall at the same time their correlation coefficient will be close to 1 (or -1 for mirrored graphs) but [correlation doesn't imply causation](http://en.wikipedia.org/wiki/Correlation_does_not_imply_causation). There are a lot of cases where independent events happen at the same time like:
+ * Correlations which are not dependencies. If two metrics rise and fall at the same time their correlation coefficient will be close to 1 (or -1 for mirrored graphs) but in general [correlation doesn't imply causation](http://en.wikipedia.org/wiki/Correlation_does_not_imply_causation). There are a lot of cases where independent events happen at the same time like:
      * cron jobs (e.g. log rotation)
      * human actions (cluster restarts, reconfigurations)
      * timed cache expirations
 
-Cluster structure often tells obvious things like grouping all metrics related to a single service into one cluster but sometimes not so obvious like dependency between latency of one application and disk IO of another unrelated one which turned out to be using the same storage array.
+Cluster structure often tells obvious things like grouping all metrics related to a single service into one cluster. But sometimes it uncovers something new like dependency between latency of one application and disk IO of another unrelated one which turned out to be using the same storage array.
