@@ -42,7 +42,7 @@ Contents of a cluster represented by the top right one:
 
 ![sample cluster contents]({{ site.url }}/img/aspm/cluster19.png)
 
-There are 2 quite similar graphs on top (actually there were more omitted from illustration) but it contains some noisy graphs (bottom) which doesn't look really similar to others. Clustering algorithm used requires exact number of clusters to be set upfront which leads to the result above because it has to assign graphs which are not similar to anything to some clusters.
+There are 2 quite similar graphs on top (actually there were more omitted from illustration) but it contains some noisy graphs (bottom) which don't look really similar to others. Clustering algorithm used requires exact number of clusters to be set upfront which leads to the result above because it has to assign graphs which are not similar to anything to some clusters.
 
 ![sample cluster contents]({{ site.url }}/img/aspm/cluster17.png)
 
