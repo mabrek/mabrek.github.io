@@ -15,6 +15,10 @@ There are several methods described at [chapter 6 Time series decomposition](htt
 I needed to deal with several thousands metrics so I started with the most simple and fast [Classical decomposition](https://www.otexts.org/fpp/6/3).  Here is an example decomposition of [weekly network traffic data](https://ganglia.wikimedia.org/latest/graph_all_periods.php?c=LVS%20loadbalancers%20ulsfo&m=cpu_report&r=week&s=by%20name&hc=4&mc=2&st=1413743230&g=network_report&z=large) from some part of Wikipedia's infrastructure taken from their [Wikimedia Grid Report](https://ganglia.wikimedia.org/latest/)
 
 
+Another example of [weekly network traffic](https://ganglia.wikimedia.org/latest/graph_all_periods.php?c=Application%20servers%20eqiad&m=cpu_report&r=hour&s=by%20name&hc=4&mc=2&st=1414005844&g=network_report&z=large)
+
+https://ganglia.wikimedia.org/latest/graph_all_periods.php?c=LVS%20loadbalancers%20eqiad&m=cpu_report&r=hour&s=by%20name&hc=4&mc=2&st=1414006458&g=network_report&z=large
+
 It needs integer number of samples during a period (day in that case)
 
 Results are mostly OK but outliers in data affected extracted seasonal component. It happens because the method uses moving average to get trend component and then averages values for the same time during several seasons (like average 10AM value on Mondays if season is 1 week).

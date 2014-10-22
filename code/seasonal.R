@@ -1,23 +1,45 @@
 library(xts)
 library(ggplot2)
 
-weekly.traffic <- as.xts(read.zoo(
+# original data has interval 42min which makes non-integer number of samples in a day
+# resample it to 640s interval with linear approximation
+resample640 <- function(m) {
+  idx <- first(index(m)) + (1 : (7 * 135)) * 640
+  na.approx(merge.xts(xts(order.by=idx), m))[idx,]
+}
+
+uslfo.traffic <- resample640(as.xts(read.zoo(
   "data/uslfo-week.csv",
   tz="GMT",
   format = "%Y-%m-%dT%H:%M:%S",
   header = TRUE,
   sep = ",",
-  quote = "\"",
-  dec = ".",
-  fill = TRUE,
-  comment.char = ""))[,1]
+  dec = "."))[,1])
 
-# original data has interval 42min which makes non-integer number of samples in a day
-# resample it to 640s interval with linear approximation
-idx <- first(index(weekly.traffic)) + (1 : (7 * 135)) * 640
-weekly.traffic <- na.approx(merge.xts(xts(order.by=idx), weekly.traffic))[idx,]
+plot(decompose(ts(uslfo.traffic, frequency=135)))
 
-plot(decompose(ts(weekly.traffic, frequency=135)))
+eqiad.traffic <- resample640(as.xts(read.zoo(
+  "data/eqiad-week.csv",
+  tz="GMT",
+  format = "%Y-%m-%dT%H:%M:%S",
+  header = TRUE,
+  sep = ",",
+  dec = "."))[,1])
+
+dev.new()
+plot(decompose(ts(eqiad.traffic, frequency=135)))
+
+lvs.eqiad.traffic <- resample640(as.xts(read.zoo(
+  "data/lvs-eqiad-week.csv",
+  tz="GMT",
+  format = "%Y-%m-%dT%H:%M:%S",
+  header = TRUE,
+  sep = ",",
+  dec = "."))[,1])
+
+dev.new()
+plot(decompose(ts(lvs.eqiad.traffic, frequency=135)))
+
 
 decompose.median <- function(m, period) {
   half.window <- period %/% 2
@@ -35,6 +57,6 @@ decompose.median <- function(m, period) {
        trend=trend)
 }
 
-w.t.dm <- decompose.median(weekly.traffic, 135)
 dev.new()
-autoplot(merge.xts(weekly.traffic, w.t.dm$trend, w.t.dm$seasonal, weekly.traffic - w.t.dm$trend - w.t.dm$seasonal)) + facet_grid(Series ~ . , scales = "free_y")
+l.e.t.dm <- decompose.median(lvs.eqiad.traffic, 135)
+autoplot(merge.xts(lvs.eqiad.traffic, l.e.t.dm$trend, l.e.t.dm$seasonal, lvs.eqiad.traffic - l.e.t.dm$trend - l.e.t.dm$seasonal)) + facet_grid(Series ~ . , scales = "free_y")
