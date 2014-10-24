@@ -6,7 +6,7 @@ tags: monitoring statistics seasonal
 
 _Describes simple method for taking the seasonal changes out of data_
 
-Roughly speaking most of anomaly detection methods for time series expect data to be flat (not changing over time) and they find out when it stops being flat. But real data that comes from a system monitoring is not flat. People use the system during business hours and sleep at night so system usage metrics are higher during a daytime. Weekends usually have lower usage metrics (if it's not an entertainment application). That difference between daytime and nightime (and weekend vs. middle of the week) needs to be removed somehow before applying anomaly detection algorithm.
+Roughly speaking most of anomaly detection methods for time series expect data to be flat (not changing over time) and they find out when it stops being flat. But real data that comes from a system monitoring is not flat. People are active during business hours and sleep at night so system usage metrics are higher during a daytime. Weekends usually have lower usage metrics (if it's not an entertainment application). That difference between daytime and nightime (and weekend vs. middle of the week) needs to be removed somehow before applying anomaly detection algorithm.
 
 [Holt-Winters](http://en.wikipedia.org/wiki/Exponential_smoothing#Triple_exponential_smoothing) is popular for such data but it puts more weight into last observations so if you had major holiday or outage last week it'll expect the same dip next week leading to false positive.
 
