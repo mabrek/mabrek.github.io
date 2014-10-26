@@ -1,10 +1,10 @@
 ---
 layout: post
-title:  "Handling Seasonal Data"
+title:  "Handling Seasonal Data with Outliers"
 tags: monitoring statistics seasonal
 ---
 
-_Describes simple method for taking the seasonal changes out of data_
+_Describes simple method for taking the seasonal changes out of data with outliers_
 
 Roughly speaking most of anomaly detection methods for time series expect data to be flat (not changing over time) and they find out when it stops being flat. But real data that comes from system monitoring is not flat. People are active during business hours and sleep at night so system usage metrics are higher during daytime. Weekends usually have lower usage metrics for business apps and higher for entertainment. That difference between daytime and nightime (and weekend vs. middle of the week) needs to be removed somehow before applying anomaly detection algorithm.
 
@@ -12,23 +12,24 @@ Roughly speaking most of anomaly detection methods for time series expect data t
 
 There are several methods described at [chapter 6 Time series decomposition](https://www.otexts.org/fpp/6) of [Forecasting: principles and practice](https://www.otexts.org/fpp) that allow to split time series into seasonal and non-seasonal components.
 
-I needed to process several thousands metrics so the most simple and fast [Classical decomposition](https://www.otexts.org/fpp/6/3) was chosen first. Here's weekly decomposition of 35 days of [Wikipedia pageviews data](http://gdash.wikimedia.org/dashboards/reqsum/) using [decompose](http://www.inside-r.org/r-doc/stats/decompose) function from [R](http://www.r-project.org/):
+I needed to process several thousands metrics so the most simple and fast [Classical decomposition](https://www.otexts.org/fpp/6/3) was chosen first. Here's an example weekly decomposition of 35 days of [Wikipedia pageviews data](http://gdash.wikimedia.org/dashboards/reqsum/) using [decompose](http://www.inside-r.org/r-doc/stats/decompose) function from [R](http://www.r-project.org/):
 
 TODO plot(pageviews.decomposed)
 
-The decomposition removes most of daily and weekly variation from the data and allows to see outliers more clearly on remainder component (marked as 'random').
+The decomposition removes most of daily and weekly variation from the data and allows to see outliers more clearly in the remainder component (labeled as 'random').
 
 In the next example I injected 2 hours long outage (zero pageviews) into the data and did the same decomposition:
 
 TODO plot(pageviews.broken.decomposed)
 
-The single outage managed to corrupt extracted trend and seasonal component and produced false outlier into remainder for each week. It happens because the method uses moving average to get trend component and then averages values for the same time during several seasons (like average 10AM value on Mondays if season is 1 week). (Moving) average is not robust in presence of outliers so I decided to try [median](http://en.wikipedia.org/wiki/Median_filter) instead.
+The single outage managed to corrupt extracted trend and seasonal component and introduced false outlier in the remainder for each week. It happens because the method uses moving average to get trend component out and then averages values for the same time during several seasons (e.g. average 10AM value on Mondays if season is 1 week). (Moving) average is not robust in presence of outliers so I decided to try [median](http://en.wikipedia.org/wiki/Median_filter) instead.
 
+TODO plot dm.b
 
+This decomposition looks much better than the previous one but there are several caveats. 
 
-Cycles vs. seasons.
+Hi-resolution data doesn't mean better seasonal extraction because current 10s don't have to be the same as 10s exactly one week ago. But the current hour has to be similar to the same hour of day week ago (if there is no holidays, outages, extremely successful marketing campaigns, etc.)
 
-current 10s don't have to be the same as 10s exactly one week ago. But current hour has to be similar to the same hour week ago (if there is no major holidays).
+Median filter leaves abrupt steps in extracted trend. That means that if you are looking for step-like anomalies then you can't just process remainder. Step might be hiding in the trend component so it's better to remove only seasonal component from signal (use trend + remainder for step detection).
 
-
-Median filter leaves abrubpt steps in extracted trend. That means that if you are looking for step-like anomalies then you can't just process remainder. Step might be hiding in a trend so it's better to remove only seasonal component from signal (use trend + remainder for step detection).
+Periods of odd length are better for median calculation because there is no interpolation in that case. Same reason applies to seasonal component extraction. Since one season is lost due to left and right padding during filtering then even number of periods is better.
