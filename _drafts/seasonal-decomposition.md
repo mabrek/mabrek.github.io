@@ -14,21 +14,21 @@ There are several methods described at [chapter 6 Time series decomposition](htt
 
 I needed to process several thousands metrics so the most simple and fast [Classical decomposition](https://www.otexts.org/fpp/6/3) was chosen first. Here's an example weekly decomposition of 35 days of [Wikipedia pageviews data](http://gdash.wikimedia.org/dashboards/reqsum/) using [decompose](http://www.inside-r.org/r-doc/stats/decompose) function from [R](http://www.r-project.org/):
 
-TODO plot(pageviews.decomposed)
+![decomposed pageviews]({{ site.url }}/img/seasonal/pageviews.decomposed.png)
 
 The decomposition removes most of daily and weekly variation from the data and allows to see outliers more clearly in the remainder component (labeled as 'random').
 
 In the next example I injected 2 hours long outage (zero pageviews) into the data and did the same decomposition:
 
-TODO plot(pageviews.broken.decomposed)
+![decomposed pageviews with outage]({{ site.url }}/img/seasonal/pageviews.broken.decomposed.png)
 
 The single outage managed to corrupt extracted trend and seasonal component and introduced false outlier in the remainder for each week. It happens because the method uses moving average to get trend component out and then averages values for the same time during several seasons (e.g. average 10AM value on Mondays if season is 1 week). (Moving) average is not robust in presence of outliers so I decided to try [median](http://en.wikipedia.org/wiki/Median_filter) instead.
 
-TODO plot dm.b
+![median decomposed pageviews with outage]({{ site.url }}/img/seasonal/pageviews.broken.median.png)
 
 This decomposition looks much better than the previous one but there are several caveats. 
 
-Hi-resolution data doesn't mean better seasonal extraction because current 10s don't have to be the same as 10s exactly one week ago. But the current hour has to be similar to the same hour of day week ago (if there is no holidays, outages, extremely successful marketing campaigns, etc.)
+Hi-resolution data doesn't mean better seasonal extraction because current 10s don't have to be the same as 10s exactly one week ago. But the current hour has to be similar to the same hour of day week ago if there is no holidays, outages, extremely successful marketing campaigns, etc.
 
 Median filter leaves abrupt steps in extracted trend. That means that if you are looking for step-like anomalies then you can't just process remainder. Step might be hiding in the trend component so it's better to remove only seasonal component from signal (use trend + remainder for step detection).
 
