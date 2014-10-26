@@ -1,6 +1,9 @@
 library(xts)
 library(ggplot2)
 
+width <- 800
+height <- 400
+
 decompose.median <- function(m, period) {
   trend <- rollapply(m, width = period, fill = NA, align = "center",
                      FUN = median, na.rm = TRUE)
@@ -26,16 +29,19 @@ pageviews <- as.xts(read.zoo(
   dec = ".",
   drop = TRUE))
 
-pageviews.decomposed = decompose(ts(na.approx(pageviews), frequency= 7 * 24 * 60))
+pageviews.decomposed <- decompose(ts(na.approx(pageviews), frequency= 7 * 24 * 60))
+png("img/seasonal/pageviews.decomposed.png", width, height)
 plot(pageviews.decomposed)
+dev.off()
 
-pageviews.broken = pageviews
+pageviews.broken <- pageviews
 pageviews.broken["2014-10-07 15:00 GMT/2014-10-07 17:00 GMT"] <- 0
-dev.new()
+
+png("img/seasonal/pageviews.broken.decomposed.png", width, height)
 plot(decompose(ts(na.approx(pageviews.broken), frequency= 7 * 24 * 60)))
+dev.off()
 
-
-dm.b = decompose.median(pageviews.broken, 7*24*60)
-dev.new()
-p <- autoplot(do.call(merge.xts, dm.b))  + facet_grid(Series ~ ., scales = "free_y")
-print(p)
+pageviews.broken.median <- decompose.median(pageviews.broken, 7 * 24 * 60)
+png("img/seasonal/pageviews.broken.median.png", width, height)
+autoplot(do.call(merge.xts, pageviews.broken.median))  + facet_grid(Series ~ ., scales = "free_y")
+dev.off()
