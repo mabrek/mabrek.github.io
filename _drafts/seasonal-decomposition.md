@@ -33,3 +33,5 @@ Hi-resolution data doesn't mean better seasonal extraction because current 10s d
 Median filter leaves abrupt steps in extracted trend. That means that if you are looking for step-like anomalies then you can't just process remainder. Step might be hiding in the trend component so it's better to remove only seasonal component from signal (use trend + remainder for step detection).
 
 Periods of odd length are better for median calculation because there is no interpolation in that case. Same reason applies to seasonal component extraction. Since one season is lost due to left and right padding during filtering then even number of periods is better.
+
+R [code]({{ site.url }}/code/seasonal.R) and [data]({{ site.url }}/data/35days.csv) used to make these graphs.
