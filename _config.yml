@@ -4,3 +4,4 @@ pygments: true
 safe: true
 lsi: false
 permalink: /blog/:title
+url: http://mabrek.github.io
