@@ -1,6 +1,6 @@
 name: "Anton Lebedevich's Blog"
 markdown: redcarpet
-pygments: true
+highlighter: pygments
 safe: true
 lsi: false
 permalink: /blog/:title
