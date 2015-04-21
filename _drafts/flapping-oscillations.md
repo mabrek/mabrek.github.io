@@ -14,7 +14,3 @@ Case 3: Maximum and 99th percentile of service response time was too high under 
 Reaggregating data with 1s resolution confirmed the suspicion:
 
 ![response time graph with 1s resolution]({{ site.url }}/img/flapping/elapsed1s.png)
-
-And latency heatmap:
-
-![latency heatmap]({{ site.url }}/img/flapping/heatmap.png)
