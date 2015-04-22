@@ -20,12 +20,24 @@ That oscillation was traced down to heavy query running every 30 seconds and slo
 
 What's common in all these cases is that periodic fluctuation in load caused performance degradation but it was only visible in hi-resolution data (second or milliseconds). Visual inspection of hi-res data doesn't scale so some method is needed to find if there is some periodical structure in the time series provided.
 
-FFT periodogram (spec.pgram) over 10s aggregated data produces quite unconvincing result:
+FFT periodogram (spec.pgram) produces quite unconvincing result on 10s aggregated data:
 
 ![10s pgram]({{ site.url }}/img/flapping/pgram10s.png)
 
-There is a spike at the expected place (frequency 0.03 which corresponds to the period of 30s) but it's not alone and hard to distinquish from background noise. 30 seconds is larger that 20 seconds (which is a [Nyquist frequency](http://en.wikipedia.org/wiki/Nyquist_frequency) for sampling rate 10s) so it should be ok to use 10s sampling to catch it but it's not. Another problem with FFT periodogram is that it doesn't like missing data. It's quite easy to do linear interpolation in case of several missing points though.
+There is a spike at the expected place (frequency 0.033 which corresponds to the period of 30s) but it's not alone and hard to distinquish from background noise. 30 seconds is larger that 20 seconds (which is a [Nyquist frequency](http://en.wikipedia.org/wiki/Nyquist_frequency) for sampling rate 10s) so it should be OK to use 10s sampling to catch it but it's not. Another problem with FFT periodogram is that it doesn't like missing data. It's quite easy to do linear interpolation in case of several missing points though.
+
+0.033 requency spike is more pronounced on periodogram from 1s sampled data but the noise around it is still strong:
 
 ![1s pgram]({{ site.url }}/img/flapping/pgram1s.png)
 
-0.03 spike is more pronounced on periodogram from 1s sampled data but still hides in the noise around it.
+There is a method called [Lomb–Scargle periodogram](http://en.wikipedia.org/wiki/Least-squares_spectral_analysis#The_Lomb.E2.80.93Scargle_periodogram) which produces more readable results on 10s data:
+
+![10s lsp]({{ site.url }}/img/flapping/lsp10s.png)
+
+The only problem that it's quite slow compared to FFT.
+
+So there are methods that allow to observe peaks on periodograms but you still need to eyeball it. Something is needed to tell if time series has a periodical component and how significant is the component compared to background noise.
+
+[Multitaper](http://en.wikipedia.org/wiki/Multitaper) method comes to the resque. [R implementation](http://cran.r-project.org/web/packages/multitaper/index.html) allows to estimate significance of spectral line in comparison to surrounding noise via F-test.
+
+![multitaper f-test]({{ site.url }}/img/flapping/mtmftest.png)
