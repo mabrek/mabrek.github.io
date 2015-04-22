@@ -24,7 +24,7 @@ FFT periodogram (spec.pgram) produces quite unconvincing result on 10s aggregate
 
 ![10s pgram]({{ site.url }}/img/flapping/pgram10s.png)
 
-There is a spike at the expected place (frequency 0.033 which corresponds to the period of 30s) but it's not alone and hard to distinquish from background noise. 30 seconds is larger that 20 seconds (which is a [Nyquist frequency](http://en.wikipedia.org/wiki/Nyquist_frequency) for sampling rate 10s) so it should be OK to use 10s sampling to catch it but it's not. Another problem with FFT periodogram is that it doesn't like missing data. It's quite easy to do linear interpolation in case of several missing points though.
+There is a spike at the expected place (frequency 0.033 which corresponds to the period of 30s) but it's not alone and hard to distinquish from background noise. 30 seconds is larger that 20 seconds (which is a [Nyquist frequency](http://en.wikipedia.org/wiki/Nyquist_frequency) for sampling rate 10s) so it should be OK to use 10s sampling rate to catch it but it's not. Another problem with FFT periodogram is that it doesn't like missing data. It's quite easy to do linear interpolation in case of several missing points though.
 
 0.033 requency spike is more pronounced on periodogram from 1s sampled data but the noise around it is still strong:
 
@@ -41,3 +41,9 @@ So there are methods that allow to observe peaks on periodograms but you still n
 [Multitaper](http://en.wikipedia.org/wiki/Multitaper) method comes to the resque. [R implementation](http://cran.r-project.org/web/packages/multitaper/index.html) allows to estimate significance of spectral line in comparison to surrounding noise via F-test.
 
 ![multitaper f-test]({{ site.url }}/img/flapping/mtmftest.png)
+
+There are 22s, 30s, 45s periodical components with significance more than 99.9%
+
+Multitaper method is still based on FFT which means that the frequency found might be a little bit off the true frequency if it's not equal to any of component frequencies of transformation.
+
+Due to a fixed sampling rate and a lack of low-pass filter before sampling the effect called [aliasing](http://en.wikipedia.org/wiki/Aliasing#Sampling_sinusoidal_functions) could add frequency components which are aliases of higher frequencies.
