@@ -27,6 +27,8 @@ These parameters (split size and page row size) are better to set per each table
 
 `val rdd = sc.cassandraTable("metric", "metric")(CassandraConnector(sc.getConf), ReadConf(5000, 10000), implicitly[ClassTag[CassandraRow]], implicitly[RowReaderFactory[CassandraRow]], implicitly[ValidRDDType[CassandraRow]])`
 
+Some kind of autotuning for these parameters based on optimal data size per job might be better than global one-size-fit-all defaults.
+
 Job speed increased but cassandra cpu usage remained quite high. `perf top`(TODO) profiler showed LZ4 decompression routines so I tried to disable compression for sstables. Compression level was about 0.3 so increasing data size 3 times was not a big deal. It didn't help at all and cassandra was still hogging cpu. JMC(TODO) profiler showed that cassandra was reading sstables (quite expected behaviour). That prompted me to check if the storage format was good enough for the data.
 
 It took about 100 bytes to store 1 timestamp and 1 value of type double without compression and about 30 bytes with compression enabled. It's a lot compared to whisper format which takes 12 bytes for that. For each data cell cassandra stores column name and write timestamp. Column names are identical for the majority of cells stored and compression takes care of that on disk but memory overhead is still high (see discussion at [CASSANDRA-4175](https://issues.apache.org/jira/browse/CASSANDRA-4175)). Saving another timestamp for data cell which has a timestamp inside seems redundant. While it's possible to set cassandra write time by `insert ... using timestamp ...` this internal timestamp can't be used for sorting and filtering data.
