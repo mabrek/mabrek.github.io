@@ -23,7 +23,18 @@ Then there were not enough job parallelism. Number of partitions was equal to nu
 
 Then I noticed quite high number of context switches and cpu usage of cassandra process. There were too many queries executed by connector so I increased `spark.cassandra.input.page.row.size` to `10000`. Each datapoint is a single number and at 1s resolution it equals to about 3 hours of data for a single metric.
 
+These parameters (split size and page row size) are better to set per each table individually because number of partitions, cells per row, cell size are different. Setting them manually in Scala seems ugly because you can't provide one implicit for ReadConf and not provide for other parameters:
+
+`val rdd = sc.cassandraTable("metric", "metric")(CassandraConnector(sc.getConf), ReadConf(5000, 10000), implicitly[ClassTag[CassandraRow]], implicitly[RowReaderFactory[CassandraRow]], implicitly[ValidRDDType[CassandraRow]])`
+
 Job speed increased but cassandra cpu usage remained quite high. `perf top`(TODO) profiler showed LZ4 decompression routines so I tried to disable compression for sstables. Compression level was about 0.3 so increasing data size 3 times was not a big deal. It didn't help at all and cassandra was still hogging cpu. JMC(TODO) profiler showed that cassandra was reading sstables (quite expected behaviour). That prompted me to check if the storage format was good enough for the data.
 
 It took about 100 bytes to store 1 timestamp and 1 value of type double without compression and about 30 bytes with compression enabled. It's a lot compared to whisper format which takes 12 bytes for that. For each data cell cassandra stores column name and write timestamp. Column names are identical for the majority of cells stored and compression takes care of that on disk but memory overhead is still high (see discussion at [CASSANDRA-4175](https://issues.apache.org/jira/browse/CASSANDRA-4175)). Saving another timestamp for data cell which has a timestamp inside seems redundant. While it's possible to set cassandra write time by `insert ... using timestamp ...` this internal timestamp can't be used for sorting and filtering data.
 
+After all of that I arrived to the point when reading 51m datapoints took about 40 seconds on 6 cores. That data was produced by 4 hosts with collectd reporting with 1 second interval for about 10 hours. Number of unique metric names was 1500. Data size on disk with compression enabled was 1.3Gb total.
+
+With the data ready to be processed in RDD I stuck on what's next. Usually I'd run positive-only-diff on known counters, filter out flat metrics, calculate different percentilles on moving windows and run Tukey Method to find spikes. But Java/Scala toolbox for time series is almost empty. There is nothing like xts, ggplot2, TSclust, forecast (TODO). The only thing that I found is a recently started [spark-timeseries](https://github.com/cloudera/spark-timeseries)
+
+There are tools beyong Java/Scala at the price of cpu cycles spent on another round of data serialization/deserialization. PySpark could give access to Pandas and IPython visualizations (with [python 3 support](https://issues.apache.org/jira/browse/SPARK-4897) in upcoming Spark 1.4). SparkR is [going to be released](https://issues.apache.org/jira/browse/SPARK-5654) in Spark 1.4 too.
+
+TTL and tombstones
