@@ -1,4 +1,4 @@
-﻿---
+---
 layout: post
 title:  "Spark vs. Cassandra (Cyanite) for Metric Timeseries"
 ---
