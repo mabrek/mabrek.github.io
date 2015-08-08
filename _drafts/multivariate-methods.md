@@ -32,7 +32,9 @@ It breaks original data into set of uncorrelated time series sorted by their
 
 In time series context SVD decomposes original set of series into set of uncorrelated (TODO check) base series, set of singular values, and a matrix of weights (loadings).
 
-https://en.wikipedia.org/wiki/Principal_component_analysis
+Closely related [PCA (Principal Component Analysis)](https://en.wikipedia.org/wiki/Principal_component_analysis) produces set of principal components (which are base series from SVD multiplied by singular values) and the same loadings from SVD.
+
+TODO top original series by their loadings
 
     fast 
     selects the most common shapes but distorts them due to outliers and sometimes mixes two common shapes together
