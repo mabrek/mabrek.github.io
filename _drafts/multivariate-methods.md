@@ -3,6 +3,19 @@ layout: post
 title:  "Exploring Performance Metrics with Multivariate Statistics"
 ---
 
+Most methods that were presented here so far are dealing with a single time series (performance metric) at a time. Now I'd like to make a quick overview of methods which allow to glance over a whole collection of time series at once.
+
+The data used as an example is a result of a load test of an application which consists of several components: http server, messaging server, database. The load applied to the http server looks like this (number of clients connected and sending requests):
+
+TODO: jmeter threads graph
+
+The idea behind the table hill shape of the load is that on the upwards slope we can see when the system breaks (how it scales), flat top shows how stable (if it didn't break on upwards slope) it is, and the downwards slope shows how it recovers and releases resources back.
+
+The service didn't do very well this time, here is a plot of request rate vs. error rate.
+
+TODO image
+
+
 common table hill shape
 pca and svd
     fast 
