@@ -5,19 +5,35 @@ title:  "Exploring Performance Metrics with Multivariate Statistics"
 
 Most methods that were presented here so far are dealing with a single time series (performance metric) at a time. Now I'd like to make a quick overview of methods which allow to glance over a whole collection of time series at once.
 
-The data used as an example is a result of a load test of an application which consists of several components: http server, messaging server, database. The load applied to the http server looks like this (number of clients connected and sending requests):
+Data used here is a result of a load test of an application which consists of several components: http server, messaging server, database. The load applied to the http server looks like this (number of identical clients connected and sending requests):
 
 TODO: jmeter threads graph
 
-The idea behind the table hill shape of the load is that on the upwards slope we can see when the system breaks (how it scales), flat top shows how stable (if it didn't break on upwards slope) it is, and the downwards slope shows how it recovers and releases resources back.
+The idea behind the table hill shape of the load is that the upwards slope shows when the system breaks (how it scales), flat top shows how stable (if it didn't break on upwards slope) it is, and the downwards slope shows how it recovers.
 
-The service didn't do very well this time, here is a plot of request rate vs. error rate.
+The service didn't do very well this time. Here is a plot of request rate vs. error rate and latency.
 
-TODO image
+TODO total http request rate vs. error rate and latency on jmeter side
+
+At least it recovered without any negative consequences and continued to serve requests at a lower rate.
 
 
-common table hill shape
-pca and svd
+### SVD and PCA
+
+Here's what the result of [SVD (Singular Value Decomposition)](https://en.wikipedia.org/wiki/Singular_value_decomposition) looks like (left-singular vectors):
+
+TODO first 10 series from U
+
+It has extracted the most common table hill shape to the first place.
+
+
+It breaks original data into set of uncorrelated time series sorted by their 
+
+
+In time series context SVD decomposes original set of series into set of uncorrelated (TODO check) base series, set of singular values, and a matrix of weights (loadings).
+
+https://en.wikipedia.org/wiki/Principal_component_analysis
+
     fast 
     selects the most common shapes but distorts them due to outliers and sometimes mixes two common shapes together
     component ordering is understandable (first component is a load applied)
