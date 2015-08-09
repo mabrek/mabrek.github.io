@@ -20,17 +20,15 @@ At least it recovered without any negative consequences and continued to serve r
 
 ### SVD and PCA
 
-Here's what the result of [SVD (Singular Value Decomposition)](https://en.wikipedia.org/wiki/Singular_value_decomposition) looks like (left-singular vectors):
+Here's what the result of [SVD (Singular Value Decomposition)](https://en.wikipedia.org/wiki/Singular_value_decomposition) looks like (left-singular vectors sorted by decreasing singular values):
 
 TODO first 10 series from U
 
-It has extracted the most common table hill shape to the first place.
+In time series context SVD decomposes original set of series into set of uncorrelated base series (left-singular vectors), set of singular values, and a matrix of weights (loadings). These matrices could be used to reconstruct the original set of series but the nice feature is that you can take only several base series corresponding to the top singular values to get quite good (in terms of squared error) result.
 
-In time series context SVD decomposes original set of series into set of uncorrelated (TODO check) base series (left-singular vectors), set of singular values, and a matrix of weights (loadings). 
+When the data is centered (mean subtracted) and scaled (divided by standard deviation) before applying SVD then top (by singular values) base series represents the most common shapes in the data with some caveats. Sometimes it can mix several common shapes into one base series. Outliers distort extracted base series due to the scaling used and the least-squares nature of the decomposition (which amplifies outliers).
 
-If all original series were centered (mean subtracted) and had the same unit (say CPU usage) then
-
-Left singular vectors is a sorted by energy set of series that can be used to reconstruct the original set with limited number of them. The more base series you take the closer (in sense of squared error) you get to the original.
+In this case the first extracted is the table hill shape of the load applied because most metrics follow that pattern. The second is TODO ... There are some spikes and drops visible on several base series which corresponds to errors and latency spikes during the test.
 
 Closely related [PCA (Principal Component Analysis)](https://en.wikipedia.org/wiki/Principal_component_analysis) produces set of principal components (which are base series from SVD multiplied by singular values) and the same loadings from SVD. Here the first 2 original series selected by maximum absolute loading per each component.
 
@@ -39,8 +37,6 @@ TODO top original series by their loadings
 
 
     fast 
-    selects the most common shapes but distorts them due to outliers and sometimes mixes two common shapes together
-    component ordering is understandable (first component is a load applied)
     it's unclear how to scale data
         center/unit variance sensible to outliers
         median/mad sensible to zero mad (data which is mostly constant with a few spikes)
