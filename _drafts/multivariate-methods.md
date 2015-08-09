@@ -30,22 +30,28 @@ When the data is centered (mean subtracted) and scaled (divided by standard devi
 
 In this case the first extracted is the table hill shape of the load applied because most metrics follow that pattern. The second is TODO ... There are some spikes and drops visible on several base series which corresponds to errors and latency spikes during the test.
 
-Closely related [PCA (Principal Component Analysis)](https://en.wikipedia.org/wiki/Principal_component_analysis) produces set of principal components (which are base series from SVD multiplied by singular values) and the same loadings from SVD. Here the first 2 original series selected by maximum absolute loading per each component.
+Closely related [PCA (Principal Component Analysis)](https://en.wikipedia.org/wiki/Principal_component_analysis) produces set of principal components (which are base series from SVD scaled by singular values) and the same loadings from SVD. Here the first 2 original series selected by maximum absolute loading per each component.
 
 TODO top original series by their loadings
 
+It selects original series which have largest contribution from top components (base series). Usually it just selects series similar to the component by shape.
 
+Original data is required to run SVD and you'll get both base series and loadings. For PCA you can use correlation matrix of original data and you'll get only loadings in that case.
 
-    fast 
-    it's unclear how to scale data
-        center/unit variance sensible to outliers
-        median/mad sensible to zero mad (data which is mostly constant with a few spikes)
-    correlation matrix (but it's slower) is better for PCA of data with different dimensions
-multidimensional scaling
+These methods are quite fast and produce meaningful results: extract most common shapes and group original series by these shapes.
+
+They are sensitive to outliers and the usual way of scaling data (by standard deviation) doesn't make a lot of sence for long tailed distributions which are quite common in performance monitoring data. It might be a good thing for exploratory data analysis because if you see some spikes or step-like changes in first base series it definitely means some abrupt changes at that time in system being monitored.
+
+I've tried to center data by subtracting median and scale by MAD (TODO median absolute deviation) but discovered that zero MAD is quite common when the data is mostly constant with a few spikes.
+
+### Multidimensional Scaling
+
     metric mds: cmdscale() is fast and produces usable results, doesn't care about duplicates
     non-metric mds: MASS:isoMDS gives identical results to cmdscale, complains about duplicates
 tsne() is slow O(n^2) but results are usable too, it finds more groups in data
-ICA
+
+### ICA
+
     extracts spikes
     different algorithms produce similar results
     non-spike signals are hard to interpret
