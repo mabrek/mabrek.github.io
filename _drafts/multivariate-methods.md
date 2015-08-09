@@ -44,12 +44,6 @@ They are sensitive to outliers and the usual way of scaling data (by standard de
 
 I've tried to center data by subtracting median and scale by MAD (TODO median absolute deviation) but discovered that zero MAD is quite common when the data is mostly constant with a few spikes.
 
-### Multidimensional Scaling
-
-    metric mds: cmdscale() is fast and produces usable results, doesn't care about duplicates
-    non-metric mds: MASS:isoMDS gives identical results to cmdscale, complains about duplicates
-tsne() is slow O(n^2) but results are usable too, it finds more groups in data
-
 ### ICA
 
     extracts spikes
@@ -57,3 +51,12 @@ tsne() is slow O(n^2) but results are usable too, it finds more groups in data
     non-spike signals are hard to interpret
     sometimes it splits one non-spike signal into two
     no ordering (importance?)
+
+### Multidimensional Scaling
+
+    metric mds: cmdscale() is fast and produces usable results, doesn't care about duplicates
+    non-metric mds: MASS:isoMDS gives identical results to cmdscale, complains about duplicates
+
+### T-SNE
+
+tsne() is slow O(n^2) but results are usable too, it finds more groups in data
