@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "Exploring Performance Metrics with Multivariate Statistics"
+title:  "Exploring Performance Time Series with Multivariate Statistics"
 ---
 
 Most methods that were presented here so far are dealing with a single time series (performance metric) at a time. Now I'd like to make a quick overview of methods which allow to glance over a whole collection of time series at once.
