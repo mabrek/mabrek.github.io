@@ -26,15 +26,17 @@ TODO first 10 series from U
 
 It has extracted the most common table hill shape to the first place.
 
+In time series context SVD decomposes original set of series into set of uncorrelated (TODO check) base series (left-singular vectors), set of singular values, and a matrix of weights (loadings). 
 
-It breaks original data into set of uncorrelated time series sorted by their 
+If all original series were centered (mean subtracted) and had the same unit (say CPU usage) then
 
+Left singular vectors is a sorted by energy set of series that can be used to reconstruct the original set with limited number of them. The more base series you take the closer (in sense of squared error) you get to the original.
 
-In time series context SVD decomposes original set of series into set of uncorrelated (TODO check) base series, set of singular values, and a matrix of weights (loadings).
-
-Closely related [PCA (Principal Component Analysis)](https://en.wikipedia.org/wiki/Principal_component_analysis) produces set of principal components (which are base series from SVD multiplied by singular values) and the same loadings from SVD.
+Closely related [PCA (Principal Component Analysis)](https://en.wikipedia.org/wiki/Principal_component_analysis) produces set of principal components (which are base series from SVD multiplied by singular values) and the same loadings from SVD. Here the first 2 original series selected by maximum absolute loading per each component.
 
 TODO top original series by their loadings
+
+
 
     fast 
     selects the most common shapes but distorts them due to outliers and sometimes mixes two common shapes together
