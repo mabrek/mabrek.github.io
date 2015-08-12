@@ -5,11 +5,11 @@ title:  "Exploring Performance Time Series with Multivariate Statistics"
 
 Most methods that were presented here so far are dealing with a single time series (performance metric) at a time. Now I'd like to make a quick overview of methods which allow to glance over a whole collection of time series at once.
 
-Data used here is a result of a load test of an application which consists of several components: http server, messaging server, database. The load applied to the http server looks like this (number of identical clients connected and sending requests):
+Data used here is a result of a load test of an application which consists of several components: http server, messaging server, database. That application uses 5 hosts and number of system metrics + application metrics is about 3300 after filtering. Think of it as a number of graphs to get through while exploring results of the test. The load applied to the http server looks like this (number of identical clients connected and sending requests):
 
 TODO: jmeter threads graph
 
-The idea behind the table hill shape of the load is that the upwards slope shows when the system breaks (how it scales), flat top shows how stable (if it didn't break on upwards slope) it is, and the downwards slope shows how it recovers.
+The idea behind the table hill shape of the load is that the upwards slope shows when the system breaks (how it scales), flat top shows how stable it is (if it didn't break on upwards slope), and the downwards slope shows how it recovers.
 
 The service didn't do very well this time. Here is a plot of request rate vs. error rate and latency.
 
@@ -26,7 +26,7 @@ TODO first 10 series from U
 
 In time series context SVD decomposes original set of series into set of uncorrelated base series (left-singular vectors), set of singular values, and a matrix of weights (loadings). These matrices could be used to reconstruct the original set of series but the nice feature is that you can take only several base series corresponding to the top singular values to get quite good (in terms of squared error) result.
 
-When the data is centered (mean subtracted) and scaled (divided by standard deviation) before applying SVD then top (by singular values) base series represents the most common shapes in the data with some caveats. Sometimes it can mix several common shapes into one base series. Outliers distort extracted base series due to the scaling used and the least-squares nature of the decomposition (which amplifies outliers).
+When the data is centered (mean subtracted) and scaled (divided by standard deviation) before applying SVD then the top (by singular values) base series represents the most common shapes in the data with some caveats. Sometimes it can mix several common shapes into one base series. Outliers distort extracted base series due to the scaling used and the least-squares nature of the decomposition (which amplifies outliers).
 
 In this case the first extracted is the table hill shape of the load applied because most metrics follow that pattern. The second is TODO ... There are some spikes and drops visible on several base series which corresponds to errors and latency spikes during the test.
 
@@ -56,6 +56,8 @@ I've tried to center data by subtracting median and scale by MAD (TODO median ab
 
     metric mds: cmdscale() is fast and produces usable results, doesn't care about duplicates
     non-metric mds: MASS:isoMDS gives identical results to cmdscale, complains about duplicates
+
+The nice thing about non-metric MDS is that it can handle any type of time series (dis)similarity measures (https://en.wikipedia.org/wiki/Time_series#Measures) not restricted to euclidean distance.
 
 ### T-SNE
 
