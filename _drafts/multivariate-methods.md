@@ -26,7 +26,7 @@ TODO first 10 series from U
 
 In time series context SVD decomposes original set of series into set of uncorrelated base series (left-singular vectors), set of singular values, and a matrix of weights (loadings). These matrices could be used to reconstruct the original set of series but the nice feature is that you can take only several base series corresponding to the top singular values to get quite good (in terms of squared error) result.
 
-When the data is centered (mean subtracted) and scaled (divided by standard deviation) before applying SVD then the top (by singular values) base series represents the most common shapes in the data with some caveats. Sometimes it can mix several common shapes into one base series. Outliers distort extracted base series due to the scaling used and the least-squares nature of the decomposition (which amplifies outliers).
+When the data is centered (mean subtracted) and scaled (divided by standard deviation) before applying SVD then the top (by singular values) base series represents the most common shapes in the data with some caveats. Sometimes it can change sign (flip shape vertically) or mix several common shapes into one. Outliers distort extracted base series due to the scaling used and the least-squares nature of the decomposition (which amplifies outliers).
 
 In this case the first extracted is the table hill shape of the load applied because most metrics follow that pattern. The second is TODO ... There are some spikes and drops visible on several base series which corresponds to errors and latency spikes during the test.
 
