@@ -44,6 +44,8 @@ They are sensitive to outliers and the usual way of scaling data (by standard de
 
 I've tried to center data by subtracting median and scale by MAD (TODO median absolute deviation) but discovered that zero MAD is quite common when the data is mostly constant with a few spikes.
 
+What SVD is good for: if you have a lots of data, slow anomaly detection algorithm and interested mostly in the time when anomaly happens then running the algorithm on several first principal components might be much faster than running it on original data.
+
 ### ICA
 
     extracts spikes
