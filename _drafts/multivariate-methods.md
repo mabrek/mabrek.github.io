@@ -7,7 +7,7 @@ Most methods that were presented here so far are dealing with a single time seri
 
 Data used here is a result of a load test of an application which consists of several components: http server, messaging server, database. That application uses 5 hosts and number of system metrics + application metrics is about 3300 after filtering. Think of it as a number of graphs to get through while exploring results of the test. The load applied to the http server looks like this (number of identical clients connected and sending requests):
 
-TODO: jmeter threads graph
+![connected clients]({{ site.url }}/img/multivariate/jmeter-threads.png)
 
 The idea behind the table hill shape of the load is that the upwards slope shows when the system breaks (how it scales), flat top shows how stable it is (if it didn't break on upwards slope), and the downwards slope shows how it recovers.
 
@@ -22,7 +22,7 @@ At least it recovered without any negative consequences and continued to serve r
 
 Here's what the result of [SVD (Singular Value Decomposition)](https://en.wikipedia.org/wiki/Singular_value_decomposition) looks like (left-singular vectors sorted by decreasing singular values):
 
-TODO first 10 series from U
+![svd left singular]({{ site.url }}/img/multivariate/svd-u.png)
 
 In time series context SVD decomposes original set of series into set of uncorrelated base series (left-singular vectors), set of singular values, and a matrix of weights (loadings). These matrices could be used to reconstruct the original set of series but the nice feature is that you can take only several base series corresponding to the top singular values to get quite good (in terms of squared error) result.
 
