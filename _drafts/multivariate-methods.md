@@ -13,6 +13,8 @@ The idea behind the table hill shape of the load is that the upwards slope shows
 
 The service didn't do very well this time. Here is a plot of request rate vs. error rate and latency.
 
+![request and error rates]({{ site.url }}/img/multivariate/request-error-rates.png)
+
 TODO total http request rate vs. error rate and latency on jmeter side
 
 At least it recovered without any negative consequences and continued to serve requests at a lower rate.
