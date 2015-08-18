@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "Exploring Performance Time Series with Multivariate Statistics"
+title:  "Exploring Performance Monitoring Time Series with Multivariate Statistics"
 ---
 
 Most methods that were presented here so far are dealing with a single time series (performance metric) at a time. Now I'd like to make a quick overview of methods which allow to glance over a whole collection of time series at once.
@@ -11,13 +11,15 @@ Data used here is a result of a load test of an application which consists of se
 
 The idea behind the table hill shape of the load is that the upwards slope shows when the system breaks (how it scales), flat top shows how stable it is (if it didn't break on upwards slope), and the downwards slope shows how it recovers.
 
-The service didn't do very well this time. Here is a plot of request rate vs. error rate and latency.
+The service didn't do very well this time. Here is a plot of successful and error response rates:
 
 ![request and error rates]({{ site.url }}/img/multivariate/request-error-rates.png)
 
-TODO total http request rate vs. error rate and latency on jmeter side
+And response latencies:
 
-At least it recovered without any negative consequences and continued to serve requests at a lower rate.
+![latencies]({{ site.url }}/img/multivariate/latencies.png)
+
+Error rate is not zero and 99th percentile of responce latency has spikes close to allowed by SLA maximum. At least it recovered and continued to serve requests at a lower rate.
 
 
 ### SVD and PCA
@@ -26,7 +28,11 @@ Here's what the result of [SVD (Singular Value Decomposition)](https://en.wikipe
 
 ![svd left singular]({{ site.url }}/img/multivariate/svd-u.png)
 
-In time series context SVD decomposes original set of series into set of uncorrelated base series (left-singular vectors), set of singular values, and a matrix of weights (loadings). These matrices could be used to reconstruct the original set of series but the nice feature is that you can take only several base series corresponding to the top singular values to get quite good (in terms of squared error) result.
+In time series context SVD decomposes original set of series into set of uncorrelated base series (left-singular vectors), set of singular values, and a matrix of weights (right-singular vectors). These matrices could be used to reconstruct the original set of series but the nice feature is that you can take only several base series corresponding to the top singular values to get quite good (in terms of squared error) result.
+
+![singular values sorted by decreasing value]({{ site.url }}/img/multivariate/svd-d.png)
+
+Looks like about first 6 singular values (sorted by decreasing value) contribute most and the rest is a background noise.
 
 When the data is centered (mean subtracted) and scaled (divided by standard deviation) before applying SVD then the top (by singular values) base series represents the most common shapes in the data with some caveats. Sometimes it can change sign (flip shape vertically) or mix several common shapes into one. Outliers distort extracted base series due to the scaling used and the least-squares nature of the decomposition (which amplifies outliers).
 
@@ -34,7 +40,7 @@ In this case the first extracted is the table hill shape of the load applied bec
 
 Closely related [PCA (Principal Component Analysis)](https://en.wikipedia.org/wiki/Principal_component_analysis) produces set of principal components (which are base series from SVD scaled by singular values) and the same loadings from SVD. Here the first 2 original series selected by maximum absolute loading per each component.
 
-TODO top original series by their loadings
+![top original by right singular vectors]({{ site.url }}/img/multivariate/svd-v.png)
 
 It selects original series which have largest contribution from top components (base series). Usually it just selects series similar to the component by shape.
 
