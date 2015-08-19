@@ -28,7 +28,7 @@ Here's what the result of [SVD (Singular Value Decomposition)](https://en.wikipe
 
 ![svd left singular]({{ site.url }}/img/multivariate/svd-u.png)
 
-In time series context SVD decomposes original set of series into set of uncorrelated base series (left-singular vectors), set of singular values, and a matrix of weights (right-singular vectors). These matrices could be used to reconstruct the original set of series but the nice feature is that you can take only several base series corresponding to the top singular values to get quite good (in terms of squared error) result.
+In time series context SVD decomposes original set of series into set of uncorrelated base series (left-singular vectors), set of singular values, and a matrix of weights (right-singular vectors). These matrices could be used to reconstruct the original set of series. The nice feature is that you can take only several base series corresponding to the top singular values to get quite good (in terms of squared error) result.
 
 ![singular values sorted by decreasing value]({{ site.url }}/img/multivariate/svd-d.png)
 
@@ -36,9 +36,9 @@ Looks like about first 6 singular values (sorted by decreasing value) contribute
 
 When the data is centered (mean subtracted) and scaled (divided by standard deviation) before applying SVD then the top (by singular values) base series represents the most common shapes in the data with some caveats. Sometimes it can change sign (flip shape vertically) or mix several common shapes into one. Outliers distort extracted base series due to the scaling used and the least-squares nature of the decomposition (which amplifies outliers).
 
-In this case the first extracted is the table hill shape of the load applied because most metrics follow that pattern. The second is TODO ... There are some spikes and drops visible on several base series which corresponds to errors and latency spikes during the test.
+In this case the first extracted is slightly skewed table hill shape of the load applied because most metrics follow that pattern. There are some spikes and drops visible on several base series which corresponds to errors and latency spikes during the test.
 
-Closely related [PCA (Principal Component Analysis)](https://en.wikipedia.org/wiki/Principal_component_analysis) produces set of principal components (which are base series from SVD scaled by singular values) and the same loadings from SVD. Here the first 2 original series selected by maximum absolute loading per each component.
+Closely related [PCA (Principal Component Analysis)](https://en.wikipedia.org/wiki/Principal_component_analysis) produces set of principal components (which are base series from SVD scaled by singular values) and the same weights (loadings) from SVD. Here the first 2 original series selected by maximum absolute loading per each principal component.
 
 ![top original by right singular vectors]({{ site.url }}/img/multivariate/svd-v.png)
 
@@ -48,11 +48,11 @@ Original data is required to run SVD and you'll get both base series and loading
 
 These methods are quite fast and produce meaningful results: extract most common shapes and group original series by these shapes.
 
-They are sensitive to outliers and the usual way of scaling data (by standard deviation) doesn't make a lot of sence for long tailed distributions which are quite common in performance monitoring data. It might be a good thing for exploratory data analysis because if you see some spikes or step-like changes in first base series it definitely means some abrupt changes at that time in system being monitored.
+They are sensitive to outliers. The usual way of scaling data (by standard deviation) doesn't make a lot of sence for long tailed distributions which are quite common in performance monitoring data. It might be a good thing for exploratory data analysis because if you see some spikes or step-like changes in several first base series it definitely means some abrupt changes at that time in system being monitored.
 
-I've tried to center data by subtracting median and scale by MAD (TODO median absolute deviation) but discovered that zero MAD is quite common when the data is mostly constant with a few spikes.
+I've tried to center data by subtracting median and scale by MAD (TODO median absolute deviation) but discovered that zero MAD is quite common when data is mostly constant with a few spikes.
 
-What SVD is good for: if you have a lots of data, slow anomaly detection algorithm and interested mostly in the time when anomaly happens then running the algorithm on several first principal components might be much faster than running it on original data.
+What SVD is good for: if you have a lots of data, slow anomaly detection algorithm and interested mostly in the time when anomaly happens then running the algorithm on several first base series (principal components) might be much faster than running it on original data.
 
 ### ICA
 
