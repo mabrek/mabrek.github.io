@@ -56,11 +56,15 @@ What SVD is good for: if you have a lots of data, slow anomaly detection algorit
 
 ### ICA
 
+[ICA (Independent Component Analysis)](https://en.wikipedia.org/wiki/Independent_component_analysis) tries to unmix original set of time series into statistically independent components.
+
     extracts spikes
     different algorithms produce similar results
     non-spike signals are hard to interpret
     sometimes it splits one non-spike signal into two
     no ordering (importance?)
+
+Slower than SVD
 
 ### Multidimensional Scaling
 
