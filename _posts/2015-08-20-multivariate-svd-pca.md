@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "Exploring Performance Monitoring Time Series with Multivariate Tools: SVD and PCA"
+title:  "Exploring Performance Monitoring Data with Multivariate Tools: SVD and PCA"
 ---
 
 Most methods that were presented here so far are dealing with a single time series (performance metric) at a time. Now I'd like to make a quick overview of methods which allow to glance over a whole collection of time series at once.
