@@ -21,7 +21,7 @@ And response latencies:
 
 ![latencies]({{ site.url }}/img/multivariate/latencies.png)
 
-Error rate is not zero and 99th percentile of responce latency has spikes close to allowed by SLA maximum. At least it recovered and continued to serve requests at a lower rate.
+Error rate is not zero and 99th percentile of response latency has spikes close to allowed by SLA maximum. At least it recovered and continued to serve requests at a lower rate.
 
 
 Here's what a result of [SVD (Singular Value Decomposition)](https://en.wikipedia.org/wiki/Singular_value_decomposition) looks like (left-singular vectors sorted by decreasing singular values):
