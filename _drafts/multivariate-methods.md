@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "Exploring Performance Monitoring Time Series with Multivariate Statistics"
+title:  "Exploring Performance Monitoring Time Series with Multivariate Tools: SVD and PCA"
 ---
 
 Most methods that were presented here so far are dealing with a single time series (performance metric) at a time. Now I'd like to make a quick overview of methods which allow to glance over a whole collection of time series at once.
@@ -21,8 +21,6 @@ And response latencies:
 
 Error rate is not zero and 99th percentile of responce latency has spikes close to allowed by SLA maximum. At least it recovered and continued to serve requests at a lower rate.
 
-
-### SVD and PCA
 
 Here's what the result of [SVD (Singular Value Decomposition)](https://en.wikipedia.org/wiki/Singular_value_decomposition) looks like (left-singular vectors sorted by decreasing singular values):
 
@@ -53,26 +51,3 @@ They are sensitive to outliers. The usual way of scaling data (by standard devia
 I've tried to center data by subtracting median and scale by MAD (TODO median absolute deviation) but discovered that zero MAD is quite common when data is mostly constant with a few spikes.
 
 What SVD is good for: if you have a lots of data, slow anomaly detection algorithm and interested mostly in the time when anomaly happens then running the algorithm on several first base series (principal components) might be much faster than running it on original data.
-
-### ICA
-
-[ICA (Independent Component Analysis)](https://en.wikipedia.org/wiki/Independent_component_analysis) tries to unmix original set of time series into statistically independent components.
-
-    extracts spikes
-    different algorithms produce similar results
-    non-spike signals are hard to interpret
-    sometimes it splits one non-spike signal into two
-    no ordering (importance?)
-
-Slower than SVD
-
-### Multidimensional Scaling
-
-    metric mds: cmdscale() is fast and produces usable results, doesn't care about duplicates
-    non-metric mds: MASS:isoMDS gives identical results to cmdscale, complains about duplicates
-
-The nice thing about non-metric MDS is that it can handle any type of time series (dis)similarity measures (https://en.wikipedia.org/wiki/Time_series#Measures) not restricted to euclidean distance.
-
-### T-SNE
-
-tsne() is slow O(n^2) but results are usable too, it finds more groups in data
