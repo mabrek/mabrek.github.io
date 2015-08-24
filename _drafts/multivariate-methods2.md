@@ -20,12 +20,14 @@ This image was generated using classical (metric) multidimensional scaling using
 
 Not all [time series (dis)similarity measures](https://en.wikipedia.org/wiki/Time_series#Measures) have these properties. There are non-metric variants of multitimensional scaling like [`isoMDS`](http://www.inside-r.org/r-doc/MASS/isoMDS). It is much slower than metric MDS and in my case its results were visually indistinguishable from the results produced by `cmdscale` on the same matrix. Actually `isoMDS` starts by running `cmdscale` first and then iteratively refines its result.
 
-### t-SNE
-
-[t-SNE](https://en.wikipedia.org/wiki/T-distributed_stochastic_neighbor_embedding)
+[t-distributed stochastic neighbor embedding (t-SNE)](https://en.wikipedia.org/wiki/T-distributed_stochastic_neighbor_embedding) arranges the same data (using the same distance matrix) in a different way:
 
 ![tsne embeddings]({{ site.url }}/img/multivariate/tsne-embeddings.png)
 
 ![tsne examples]({{ site.url }}/img/multivariate/tsne-examples.png)
+
+There are several clusters of step-like shapes (1 - 3, 13) and spikes (4, 11, 12, 16) around edges. Hill-like shapes are in the middle (5 - 10). Walley-like shape (6) is in the middle because the absolute value of correlation was used as the similarity function. It's a flipped hill and `abs(cor())` is the same for flipped series. Bottom-right side contains close to linear trends graphs (14, 15). 
+
+t-SNE seems to find more groups of smaller size than MDS. Large table-hill shaped group (which is in the middle) is not that clear as in MDS results. It doesn't collapse points with zero distance into one but tries to spread them around which produces small and dense groups (1, 2).
 
 tsne() is slow O(n^2) but results are usable too, it finds more groups in data
