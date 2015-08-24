@@ -29,3 +29,7 @@ Not all [time series (dis)similarity measures](https://en.wikipedia.org/wiki/Tim
 There are several clusters of step-like shapes (1 - 3, 13) and spikes (4, 11, 12, 16) around edges. Hill-like shapes are in the middle (5 - 10). Walley-like shape (6) is in the middle because the absolute value of correlation was used as the similarity function. It's a flipped hill and `abs(cor(...))` is the same for flipped series. Bottom-right side contains close to linear trend series (14, 15). 
 
 t-SNE seems to find more groups of smaller size than MDS. Large table-hill shaped group (which is in the middle) is not that clear as in MDS results. It doesn't collapse points with zero distance into one but tries to spread them around which produces small and dense groups (1, 2). t-SNE is much slower than MDS.
+
+TODO links to demo
+
+When used interactively these tools are better for exploratory analysis of time series data than [clustering]({{site.url}}/blog/statistics-for-monitoring-correlation/) that I used before.
