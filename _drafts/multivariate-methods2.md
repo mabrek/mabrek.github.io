@@ -32,4 +32,4 @@ t-SNE seems to find more groups of smaller size than MDS. Large table-hill shape
 
 When used interactively these tools are better for exploratory analysis of time series data than [clustering]({{site.url}}/blog/statistics-for-monitoring-correlation/) that I used before.
 
-I've made a [quick demo]() for both methods using [shinyapps.io](http://www.shinyapps.io/)
+I've made a [quick demo for both methods](https://mabrek.shinyapps.io/explore-timeseries).
