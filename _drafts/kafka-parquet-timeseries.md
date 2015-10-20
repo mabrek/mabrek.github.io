@@ -25,4 +25,4 @@ Then I've started collectd (TODO) with as many plugins turned on as it made sens
 
 Dumpling the data back into text format is a one-liner too:
 
-    kafka-console-consumer.sh  --zookeeper localhost:2181 --topic metrics --from-beginning --property print.key=true --delete-consumer-offsets
+    kafka-console-consumer.sh  --zookeeper localhost:2181 --topic metrics --from-beginning --property print.key=true
