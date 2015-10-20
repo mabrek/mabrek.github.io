@@ -19,7 +19,7 @@ Most of my data uses graphite line format (TODO) which is quite verbose. Metric 
 
 I've set up single node Kafka as described in http://kafka.apache.org/documentation.html#quickstart
 
-Feeding graphite data into Kafka turned out to be one-liner with kafkacat(TODO):
+Feeding graphite data into Kafka turned out to be one-liner with nc (TODO) and kafkacat(TODO):
 
     nc -4l localhost 2003 | kafkacat -P -b localhost -t metrics -K ' '
 
@@ -29,8 +29,16 @@ Then I've started collectd (TODO) with graphite reporter (TODO) pointing to loca
 
 Dumpling the data back into text format is a one-liner too:
 
-    kafka-console-consumer.sh  --zookeeper localhost:2181 --topic metrics --from-beginning --property print.key=true
+    kafka-console-consumer.sh  --zookeeper localhost:2181 --topic metrics \
+    --from-beginning --property print.key=true
 
 Text file had size of 1.4Gb which means that kafka has some overhead for storing data.
 
-Next step is to fetch data from Kafka and feed it into Parquet.
+Next step is to fetch data from Kafka and feed it into Parquet. I needed to handle read offsets manually so I chose SimpleConsumer. It's API turned out to be quite confusing and not that simple. It doesn't talk to Zookeeper (TODO) and allows to specify offsets. Using it with all corner cases handled requires a lot of code https://cwiki.apache.org/confluence/display/KAFKA/0.8.0+SimpleConsumer+Example but the prototype can cut many corners so reading data turned out quite simple in Scala:
+
+    val consumer = new SimpleConsumer("localhost", 9092, 5000,
+        BlockingChannel.UseDefaultBufferSize, name)
+    val fetchRequest = new FetchRequestBuilder().clientId(name)
+        .addFetch(topic, partition, offset, fetchSize).build()
+    val fetchResponse = consumer.fetch(fetchRequest)
+    val messages = fetchResponse.messageSet(topic, partition)
