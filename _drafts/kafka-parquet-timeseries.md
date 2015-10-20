@@ -32,9 +32,9 @@ Dumpling the data back into text format is a one-liner too:
     kafka-console-consumer.sh  --zookeeper localhost:2181 --topic metrics \
     --from-beginning --property print.key=true
 
-Text file had size of 1.4Gb which means that kafka has some overhead for storing data.
+Text file had size of 1.4Gb which means kafka has some overhead for storing uncompressed data.
 
-Next step is to fetch data from Kafka and feed it into Parquet. I needed to handle read offsets manually so I chose SimpleConsumer. It's API turned out to be quite confusing and not that simple. It doesn't talk to Zookeeper (TODO) and allows to specify offsets. Using it with all corner cases handled requires a lot of code https://cwiki.apache.org/confluence/display/KAFKA/0.8.0+SimpleConsumer+Example but the prototype can cut many corners so reading data turned out quite simple in Scala:
+Next step is to fetch data from Kafka. I needed to handle read offsets manually so I chose SimpleConsumer. It's API turned out to be quite confusing and not that simple. It doesn't talk to Zookeeper (TODO) and allows to specify offsets. Handling all corner cases requires lots of code https://cwiki.apache.org/confluence/display/KAFKA/0.8.0+SimpleConsumer+Example but the prototype can cut many corners so reading data turned out quite simple in Scala:
 
     val consumer = new SimpleConsumer("localhost", 9092, 5000,
         BlockingChannel.UseDefaultBufferSize, name)
@@ -42,3 +42,10 @@ Next step is to fetch data from Kafka and feed it into Parquet. I needed to hand
         .addFetch(topic, partition, offset, fetchSize).build()
     val fetchResponse = consumer.fetch(fetchRequest)
     val messages = fetchResponse.messageSet(topic, partition)
+
+
+Next step is saving data into Parquet.
+
+Open questions are:
+can Parquet handle very wide schema with 100k columns and more?
+is it possible to merge schema which has a change in column type from int to double?
