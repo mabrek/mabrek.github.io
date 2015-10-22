@@ -17,7 +17,9 @@ To achieve space efficiency data needs to be written in large chunks so I needed
 
 Most of my data uses graphite line format (TODO) which is quite verbose. Metric names and timestamps are repeating. Metrics are sent periodically at the same time so their lines share single timestamp. The same set of metrics is being sent each time. Only value changes over time but for many metrics are not changing a lot which makes it a good target for dictionary or delta encoding (TODO).
 
-I've set up single node Kafka as described in http://kafka.apache.org/documentation.html#quickstart
+### Feeding graphite data into Kafka
+
+I've set up single node Kafka as described in [manual](http://kafka.apache.org/documentation.html#quickstart)
 
 Feeding graphite data into Kafka turned out to be one-liner with nc (TODO) and kafkacat(TODO):
 
@@ -34,7 +36,9 @@ Dumpling the data back into text format is a one-liner too:
 
 Text file had size of 1.4Gb which means kafka has some overhead for storing uncompressed data.
 
-Next step is to fetch data from Kafka. I needed to handle read offsets manually so I chose SimpleConsumer. It's API turned out to be quite confusing and not that simple. It doesn't talk to Zookeeper (TODO) and allows to specify offsets. Handling all corner cases requires lots of code https://cwiki.apache.org/confluence/display/KAFKA/0.8.0+SimpleConsumer+Example but the prototype can cut many corners so reading data turned out quite simple in Scala:
+### Fetching data from Kafka
+
+I needed to handle read offsets manually so I chose SimpleConsumer. It's API turned out to be quite confusing and not that simple. It doesn't talk to Zookeeper (TODO) and allows to specify offsets. Handling all corner cases requires lots of [code](https://cwiki.apache.org/confluence/display/KAFKA/0.8.0+SimpleConsumer+Example) but simple prototype turned out to be quite short in Scala:
 
     val consumer = new SimpleConsumer("localhost", 9092, 5000,
         BlockingChannel.UseDefaultBufferSize, name)
@@ -42,10 +46,50 @@ Next step is to fetch data from Kafka. I needed to handle read offsets manually 
         .addFetch(topic, partition, offset, fetchSize).build()
     val fetchResponse = consumer.fetch(fetchRequest)
     val messages = fetchResponse.messageSet(topic, partition)
+    
+
+### Saving data into Parquet
+
+[Parquet](https://parquet.apache.org/) API documentation doesn't seem to be published anywhere. Javadoc for [org.apache.parquet.schema.Types](https://github.com/apache/parquet-mr/blob/master/parquet-column/src/main/java/org/apache/parquet/schema/Types.java#L30) contains several schema examples. Writing local files from standalone application is not described anywhere but the module `parquet-benchmarks` contains class [org.apache.parquet.benchmarks.DataGenerator](https://github.com/apache/parquet-mr/blob/master/parquet-benchmarks/src/main/java/org/apache/parquet/benchmarks/DataGenerator.java#L68) which writes several variants of local files. Writing files depends on Hadoop classes so you'll need it as a project dependency (there's an [issue](https://github.com/Parquet/parquet-mr/issues/305) for that)
+
+I decided to use 'wide' schema when each metric has its own column (to make use of delta encoding etc.):
+
+    val types = mutable.Set[Type]()
+    ...
+    // for each message collect unique keys as types
+    types += Types.optional(DOUBLE).named(key)
+    ...
+    val schema = new MessageType("GraphiteLine",
+        (types + Types.required(INT64).named("timestamp")).toList) 
+
+Boilerplate to create ParquetWriter object:
+
+    val configuration = new Configuration
+    GroupWriteSupport.setSchema(schema, configuration)
+    val gf = new SimpleGroupFactory(schema)
+    val outFile = new Path(targetFolder,
+          s"$topic-$partition-$offset-$nextOffset.parquet")
+    val writer = new ParquetWriter[Group](outFile, 
+        new GroupWriteSupport, GZIP, DEFAULT_BLOCK_SIZE, 
+        DEFAULT_PAGE_SIZE, 512, true, false, PARQUET_2_0, 
+        configuration)
+
+For each unique timestamp row (called group in Parquet) is added. It contains values for all metrics at that time:
+
+    for (timestamp <- timestamps) {
+        val group = gf.newGroup().append("timestamp", timestamp)
+            for ((metric, column) <- columns) {
+                column.get(timestamp).foreach(group.append(metric, _))
+            }
+        writer.write(group)
+    }
+    writer.close()
 
 
-Next step is saving data into Parquet.
+### Open questions
 
-Open questions are:
-can Parquet handle very wide schema with 100k columns and more?
-is it possible to merge schema which has a change in column type from int to double?
+Can Parquet handle very wide schema with 100k columns and more?
+
+Is it possible to merge schema which has a change in column type from int to double?
+
+How to get data from Parquet into R? ([issue](https://github.com/Parquet/parquet-format/issues/72))
