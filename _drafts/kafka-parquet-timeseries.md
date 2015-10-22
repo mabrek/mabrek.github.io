@@ -34,7 +34,7 @@ Dumpling the data back into text format is a one-liner too:
     kafka-console-consumer.sh  --zookeeper localhost:2181 --topic metrics \
     --from-beginning --property print.key=true
 
-Text file had size of 1.4Gb which means kafka has some overhead for storing uncompressed data.
+Text file had size of 1.4Gb which means kafka has some overhead for storing uncompressed data. There are ~ 19000000 lines in the file.
 
 ### Fetching data from Kafka
 
@@ -67,14 +67,13 @@ Boilerplate to create ParquetWriter object:
     val configuration = new Configuration
     GroupWriteSupport.setSchema(schema, configuration)
     val gf = new SimpleGroupFactory(schema)
-    val outFile = new Path(targetFolder,
-          s"$topic-$partition-$offset-$nextOffset.parquet")
+    val outFile = new Path("data-file.parquet")
     val writer = new ParquetWriter[Group](outFile, 
-        new GroupWriteSupport, GZIP, DEFAULT_BLOCK_SIZE, 
+        new GroupWriteSupport, UNCOMPRESSED, DEFAULT_BLOCK_SIZE, 
         DEFAULT_PAGE_SIZE, 512, true, false, PARQUET_2_0, 
         configuration)
 
-For each unique timestamp row (called group in Parquet) is added. It contains values for all metrics at that time:
+For each unique timestamp a row (called group in Parquet) is added which contains values for all metrics (columns) at that time:
 
     for (timestamp <- timestamps) {
         val group = gf.newGroup().append("timestamp", timestamp)
@@ -84,6 +83,18 @@ For each unique timestamp row (called group in Parquet) is added. It contains va
         writer.write(group)
     }
     writer.close()
+
+### Effect of compression
+
+Enabling gzip compression in Parquet reduced file size 3 times compared to uncompressed. The result took 12Mb for 19000000 input lines. Storing the same data in whisper format would take at least 230Mb (actually more because it reserves space for each metric for whole retention interval).
+
+I tried enabling Snappy compression for Kafka publisher:
+
+    kafkacat -P -b localhost -t metricz -K ' ' -z snappy < metrics.txt
+
+and got ~ 500Mb queue size for 1.4Gb original data.
+
+The result looks quite good: temporal buffer in Kafka needs 1/3 size of original data  and long term storage takes ~ 0.6 bytes per datapoint (while whisper takes 12 bytes).
 
 
 ### Open questions
