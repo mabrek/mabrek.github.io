@@ -5,17 +5,19 @@ title:  "Prototyping Long Term Time Series Storage with Kafka and Parquet"
 
 _Another attempt to find better storage for time series data, this time it looks quite promising_
 
-After struggling with keeping disk IOPS sane while ingesting hi-resolution performance data I ended up putting whisper (TODO) files into tmpfs (TODO) and shortening data retention to just one day because my load tests usually don't last more than several hours. Then I export data into R and do analysis. Large scale projects like Gorilla and Atlas do similar things. They store recent data in RAM only and then dump it to slow long term storage.
+After struggling with keeping disk IOPS sane while ingesting hi-resolution performance data I ended up putting whisper (TODO) files into tmpfs (TODO) and shortening data retention to just one day because my load tests usually don't last more than several hours. Then I export data into R and do analysis. Large scale projects like Gorilla(TODO) and Atlas(TODO) do similar things. They store recent data in RAM and then dump it to slow long term storage.
 
-(TODO delete)Trying to keep realtime monitoring and historical data in the same database results in write amplification when small chunks of latest data are continuously being merged and rewritten to achieve more efficient long term storage.
-
-Whisper format (TODO) is quite good in terms of storage (12 bytes per datapoint). It's columnar because it saves each metric in its own file. It has redundant data because it saves a timestamp with each value and many values from different metrics share the same timestamp. There is no compression. I need something which is better than whisper.
+Whisper format (TODO) is relatively good in terms of storage (12 bytes per datapoint). It's columnar because it saves each metric in its own file. It has redundant data because it saves a timestamp with each value and many values from different metrics share the same timestamp. There is no compression. I need something which is better than whisper.
 
 Gorilla paper inspired me to look into column storage formats with efficient encoding for repeated data. I've decided to try Parquet (TODO). Unfortunately floating point compression is not there yet https://github.com/Parquet/parquet-mr/issues/306 (as a side note ORCFile TODO also doesn't have it https://issues.apache.org/jira/browse/ORC-15) but my values are 'double'.
 
 To achieve space efficiency data needs to be written in large chunks so I needed something to buffer data until it reaches final destination. The way Kafka(TODO) works with streaming writes and read offsets made me think that it's a good fit for storing data until it's picked up by periodical job. That job would start, read all the data available from the last read offset, compress and store it, and sleep until the next cycle.
 
-Most of my data uses graphite line format (TODO) which is quite verbose. Metric names and timestamps are repeating. Metrics are sent periodically at the same time so their lines share single timestamp. The same set of metrics is being sent each time. Only value changes over time but for many metrics are not changing a lot which makes it a good target for dictionary or delta encoding (TODO).
+Most of my data uses graphite line format (TODO) which is quite verbose.
+
+    metric value timestamp
+
+Metric names and timestamps are repeating. Metrics are sent periodically at the same time so their lines share single timestamp. The same set of metrics is being sent each time. Only value changes over time but for many metrics are not changing a lot which makes it a good target for dictionary or delta encoding (TODO).
 
 ### Feeding graphite data into Kafka
 
@@ -25,7 +27,7 @@ Feeding graphite data into Kafka turned out to be one-liner with nc (TODO) and k
 
     nc -4l localhost 2003 | kafkacat -P -b localhost -t metrics -K ' '
 
-Metric name (the first field before space which is cut by -K option) is used as message key in kafka and 'value timestamp' is a payload.
+Metric name is used as message key in kafka and 'value timestamp' is a payload.
 
 Then I've started collectd (TODO) with graphite reporter (TODO) pointing to localhost and reporting interval of 1 second. After several hours I've got 1.8 Gb queue in kafka.
 
@@ -104,3 +106,6 @@ Can Parquet handle very wide schema with 100k columns and more?
 Is it possible to merge schema which has a change in column type from int to double?
 
 How to get data from Parquet into R? ([issue](https://github.com/Parquet/parquet-format/issues/72))
+
+### Source code
+
