@@ -111,3 +111,4 @@ How to get data from Parquet into R without Spark? ([issue](https://github.com/P
 
 ### Source code
 
+Available on github [kafka-timeseries](https://github.com/mabrek/kafka-timeseries) with build instructions. Actually it's just a [single Scala file](https://github.com/mabrek/kafka-timeseries/blob/master/src/main/scala/KafkaTimeseries.scala) with 100 lines of code 20 of which are import statements.
