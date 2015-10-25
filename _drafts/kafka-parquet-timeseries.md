@@ -9,7 +9,7 @@ Last time I tried to switch from [Graphite](http://graphite.readthedocs.org/en/l
 
 [Whisper file format](http://graphite.readthedocs.org/en/latest/whisper.html#database-format) is relatively good in terms of storage size (12 bytes per datapoint). It's columnar because it saves each metric in its own file. It contains redundant data because it saves a timestamp with each value and many values from different metrics share the same timestamp. There is no compression. I need to find something better than Whisper.
 
- [Gorilla(pdf)](http://www.vldb.org/pvldb/vol8/p1816-teller.pdf) paper inspired me to look into column storage formats with efficient encoding of repeated data. I've decided to try [Parquet](https://parquet.apache.org/). Unfortunately floating point compression is [not there yet](https://github.com/Parquet/parquet-mr/issues/306) but my values have type `double` (as a side note [ORCFile](http://orc.apache.org/) [lacks it](https://issues.apache.org/jira/browse/ORC-15) too). Many metrics (counters) actually have integer type but there is no information about their types upfront.
+ [Gorilla(pdf)](http://www.vldb.org/pvldb/vol8/p1816-teller.pdf) paper inspired me to look into column storage formats with efficient encoding of repeated data. I decided to try [Parquet](https://parquet.apache.org/). Unfortunately floating point compression is [not there yet](https://github.com/Parquet/parquet-mr/issues/306) but my values have type `double` (as a side note [ORCFile](http://orc.apache.org/) [lacks it](https://issues.apache.org/jira/browse/ORC-15) too). Many metrics (counters) actually have integer type but there is no information about their types upfront.
 
 To achieve good compression data needs to be written in large chunks so I needed something to buffer data. The way [Kafka](http://kafka.apache.org/) works with streaming writes and read offsets made me think that it's a good fit for storing data until it's picked up by periodical job. That job would start, read all the data available from the last read offset, compress and store it, and sleep until the next cycle.
 
@@ -40,7 +40,7 @@ Text file had size of 1.4Gb which means kafka has some overhead for storing unco
 
 ### Fetching data from Kafka
 
-I needed to handle read offsets manually so I chose [SimpleConsumer](http://kafka.apache.org/documentation.html#simpleconsumerapi). It's API turned out to be quite confusing and not that simple. It doesn't talk to Zookeeper and allows to specify offsets. Handling all corner cases requires lots of [code](https://cwiki.apache.org/confluence/display/KAFKA/0.8.0+SimpleConsumer+Example) but simple prototype turned out to be quite short in Scala:
+I needed to handle read offsets manually so I chose [SimpleConsumer](http://kafka.apache.org/documentation.html#simpleconsumerapi). Its API turned out to be quite confusing and not that simple. It doesn't talk to Zookeeper and allows to specify offsets. Handling all corner cases requires lots of [code](https://cwiki.apache.org/confluence/display/KAFKA/0.8.0+SimpleConsumer+Example) but simple prototype turned out to be quite short in Scala:
 
     val consumer = new SimpleConsumer("localhost", 9092, 5000,
         BlockingChannel.UseDefaultBufferSize, name)
