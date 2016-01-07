@@ -1,3 +1,6 @@
+Machine Learning is not BS in Monitoring
+
+https://medium.com/the-opsee-blog/machine-learning-in-monitoring-is-bs-134e362faee2
 
 1. Ambiguity of the data - true point. It's impossible to build a single universal model that eats any data and alert when it's wrong. But it's possible to build different models for different cases with the help of humans.
 
