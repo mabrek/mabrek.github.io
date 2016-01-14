@@ -36,7 +36,7 @@ Feature engineering:
 
 For some stores with large error in cross-validation I dropped data before manually selected (by staring at Sales time series graphs) changepoints.
 
-Dropped stores missing in test set for xgboost train set.
+Training set contained more stores that were present in the test set. I dropped those stores extra stores from the train set for xgboost.
 
 Dropped outliers in train set for glmnet. Outliers selected by `> 2.5 * median absolute residual` from `lm` trained on small set of features per store.
 
@@ -49,3 +49,5 @@ Grid search was used to find `glmnet` `alpha` parameter. The best `alpha` was 1 
 [0.985 correction](https://www.kaggle.com/c/rossmann-store-sales/forums/t/17601/correcting-log-sales-prediction-for-rmspe/99643#post99643) was insignificant on cross-validation (effect was less than standard deviation of RMSPE from different folds) but helped on leaderboard both private and public.
 
 Pairwise feature combinations had positive effect for glmnet on cross-validation but didn't work on leaderboard.
+
+As a result single interpretable per store glmnet model gave prediction error (RMSPE)  0.11974 (516th place on leaderboard), single xgboost model - 0.11839 (379th), their average - 0.11262 (66th).
