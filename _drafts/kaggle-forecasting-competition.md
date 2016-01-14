@@ -7,9 +7,9 @@ _It's the first time I tried participating in machine learning competition and m
 
 The goal of the [competition](https://www.kaggle.com/c/rossmann-store-sales) was to predict 6 weeks of daily `Sales` in 1115 stores located in different parts of Germany based on 2.5 years of historical daily sales.
 
-The first thing I tried after importing data was to convert it into multivariate regular time series and run [SVD]({{ site.url }}/blog/multivariate-svd-pca/). It showed that the majority of stores don't have upwards or downwards trends, seasonal variation is present but mostly as Christmas effect, Sunday is non-working day, and there is a strange cycle with 2 weeks length, which turned out to be an effect of running `Promo` action every other week. There were group of stores that don't close on Sunday in summer, some stores had strong yearly pattern, some stores had sales continuously growing (or decreasing) in time, group of stores had last half year of 2014 data missing. I selected several stores as examples from different groups to check various ideas on them first.
+The first thing I tried after importing data was to convert it into multivariate regular time series and run [SVD]({{ site.url }}/blog/multivariate-svd-pca/). It showed that the majority of stores don't have upwards or downwards trends, seasonal variation is present but mostly as Christmas effect, Sunday is non-working day, and there is a strange cycle with 2 weeks length, which turned out to be an effect of running `Promo` action every other week. There were group of stores that don't close on Sunday in summer, some stores had strong yearly pattern, some stores had sales continuously growing (or decreasing) in time, group of storesthat had last half year of 2014 data missing. I selected several stores as examples from different groups to check various ideas on them first.
 
-In the beginning my idea was to check how good can single explanatory model be. There were two simple benchmark models ([median](https://www.kaggle.com/shearerp/rossmann-store-sales/interactive-sales-visualization), [geometric mean](https://www.kaggle.com/shearerp/rossmann-store-sales/store-dayofweek-promo-0-13952)) on forum which I used as a starting point.
+In the beginning my idea was to check how good single interpretable model can be. There were two simple benchmark models ([median](https://www.kaggle.com/shearerp/rossmann-store-sales/interactive-sales-visualization), [geometric mean](https://www.kaggle.com/shearerp/rossmann-store-sales/store-dayofweek-promo-0-13952)) on forum which I used as a starting point.
 
 To validate model quality I implemented time-based cross-validation as described in [Forecasting: principles and practice](https://www.otexts.org/fpp/2/5)
 
@@ -36,11 +36,15 @@ Feature engineering:
 
 For some stores with large error in cross-validation I dropped data before manually selected (by staring at Sales time series graphs) changepoints.
 
-Dropped stores missing in test set for xgb train set.
+Dropped stores missing in test set for xgboost train set.
 
 Dropped outliers in train set for glmnet. Outliers selected by `> 2.5 * median absolute residual` from `lm` trained on small set of features per store.
 
 Initially I used 10 cross-validation folds with 6 weeks length cut from the end of train set with 2 weeks step (~4.5 months total) but then found that closest to 2014 folds produce large errors for stores with missing in 2014 data. Then switched to 15 folds with 3 days step to not get too close to 2014 which improved predictions for those stores.
+
+RMSPE was quite different for different prediction ranges. For the same store it could go from TODO to TODO with the same model. It made me think that public leaderboard position is going to change a lot in private because they have time based split. It turned out to be [true](https://www.kaggle.com/c/rossmann-store-sales/forums/t/17898/leaderboard-shakeup).
+
+Grid search was used to find `glmnet` `alpha` parameter. The best `alpha` was 1 which corresponds to [Lasso  regularization](https://en.wikipedia.org/wiki/Least_squares#Lasso_method). Choice of `lambda` is implemented in [cv.glmnet](http://www.inside-r.org/packages/cran/glmnet/docs/cv.glmnet) but it uses standard k-fold cross-validation. I reimplemented it to use time-based cross-validation.
 
 [0.985 correction](https://www.kaggle.com/c/rossmann-store-sales/forums/t/17601/correcting-log-sales-prediction-for-rmspe/99643#post99643) was insignificant on cross-validation (effect was less than standard deviation of RMSPE from different folds) but helped on leaderboard both private and public.
 
