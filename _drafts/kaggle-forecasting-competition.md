@@ -3,11 +3,11 @@ layout: post
 title:  "My Top 10% Solution for Kaggle Rossman Store Sales Forecasting Competition"
 ---
 
-_It's the first time I tried participating in machine learning competition and my result turned out to be quite good: [66th from 3303](https://www.kaggle.com/mabrek/results). I used R and an average of two models: glmnet and xgboost with a lot of feature engineering_
+_It's the first time I participated in machine learning competition and my result turned out to be quite good: [66th from 3303](https://www.kaggle.com/mabrek/results). I used R and an average of two models: glmnet and xgboost with a lot of feature engineering_
 
 The goal of the [competition](https://www.kaggle.com/c/rossmann-store-sales) was to predict 6 weeks of daily `Sales` in 1115 stores located in different parts of Germany based on 2.5 years of historical daily sales.
 
-The first thing I tried after importing data was to convert it into multivariate regular time series and run [SVD]({{ site.url }}/blog/multivariate-svd-pca/). It showed that the majority of stores don't have upwards or downwards trends, seasonal variation is present but mostly as Christmas effect, Sunday is non-working day, and there is a strange cycle with 2 weeks length, which turned out to be an effect of running `Promo` action every other week. There were group of stores that don't close on Sunday in summer, some stores had strong yearly pattern, some stores had sales continuously growing (or decreasing) in time, group of storesthat had last half year of 2014 data missing. I selected several stores as examples from different groups to check various ideas on them first.
+The first thing I tried after importing data was to convert it into multivariate regular time series and run [SVD]({{ site.url }}/blog/multivariate-svd-pca/). It showed that the majority of stores don't have upwards or downwards trends, seasonal variation is present but mostly as Christmas effect, Sunday is non-working day, and there is a strange cycle with 2 weeks length, which was an effect of running `Promo` action every other week. There were group of stores that don't close on Sunday in summer, some stores had strong yearly pattern, some stores had sales continuously growing (or decreasing) in time, group of stores that had last half year of 2014 data missing. I selected several stores as examples from different groups to check various ideas on them first.
 
 In the beginning my idea was to check how good single interpretable model can be. There were two simple benchmark models ([median](https://www.kaggle.com/shearerp/rossmann-store-sales/interactive-sales-visualization), [geometric mean](https://www.kaggle.com/shearerp/rossmann-store-sales/store-dayofweek-promo-0-13952)) on forum which I used as a starting point.
 
@@ -21,7 +21,7 @@ I tried [`forecast::tbats`](http://www.inside-r.org/packages/cran/forecast/docs/
 
 There is some similarity between `Sales` and count data so I tried Poisson regression as suggested in [Generalised Linear Models in R](http://www.magesblog.com/2015/08/generalised-linear-models-in-r.html) but it resulted in larger error in cross-validation than predicting `log(Sales)` using [Gaussian family](https://cran.r-project.org/web/packages/glmnet/vignettes/glmnet_beta.html#lin) of generalized linear model.
 
-[RMSPE used as evaluation criteria](https://www.kaggle.com/c/rossmann-store-sales/details/evaluation) is asymmetric (see [discussion of MAPE](https://www.otexts.org/fpp/2/5)) and sensitive to outliers. Typical range for different models and different stores was between 0.08 and 0.25. Single holiday missed by the model with prediction 1000 and actual sales 10 results in RMSPE 99 for that point which makes otherwise good model look really bad on average.
+[RMSPE evaluation criteria](https://www.kaggle.com/c/rossmann-store-sales/details/evaluation) is asymmetric (see [discussion of MAPE](https://www.otexts.org/fpp/2/5)) and sensitive to outliers. Typical range for different models and different stores was between 0.08 and 0.25. Single holiday missed by the model with prediction 1000 and actual sales 10 results in RMSPE 99 for that point which makes otherwise good model look really bad on average.
 
 Best per store glmnet model scored worse than simple [xgboost](https://github.com/dmlc/xgboost) [published on forum](https://www.kaggle.com/abhilashawasthi/rossmann-store-sales/xgb-rossmann/run/86608). Tree based regression models don't extrapolate well because they [give constant predictions outside of train range](https://www.kaggle.com/forums/f/15/kaggle-forum/t/6609/why-does-extrapolating-a-sine-curve-via-a-randomforest-gives-a-straight). Number of stores with long-range trend was small and the majority had quite stable sales over time so I decided to give xgboost a try and fed it with the same features as I did for linear model (without [one-hot encoding](https://en.wikipedia.org/wiki/One-hot) for categorical features).
 
@@ -34,20 +34,20 @@ Feature engineering:
  - binary features like `ClosesTomorrow`, `WasClosedYesterday`, `WasClosedOnSunday`;
  - day of week, day of month, month number, year as categorical for xbgoost and n-1 binary features for glmnet (described at https://www.otexts.org/fpp/5/2 ).
 
-For some stores with large error in cross-validation I dropped data before manually selected (by staring at Sales time series graphs) changepoints.
+For some stores with large error in cross-validation I dropped data before manually selected (by staring at `Sales` time series graphs) changepoints.
 
-Training set contained more stores that were present in the test set. I dropped those stores extra stores from the train set for xgboost.
+Training set contained more stores that were present in the test set. I dropped those extra stores from the train set for xgboost.
 
 Dropped outliers in train set for glmnet. Outliers selected by `> 2.5 * median absolute residual` from `lm` trained on small set of features per store.
 
 Initially I used 10 cross-validation folds with 6 weeks length cut from the end of train set with 2 weeks step (~4.5 months total) but then found that closest to 2014 folds produce large errors for stores with missing in 2014 data. Then switched to 15 folds with 3 days step to not get too close to 2014 which improved predictions for those stores.
 
-RMSPE was quite different for different prediction ranges. For the same store it could go from TODO to TODO with the same model. It made me think that public leaderboard position is going to change a lot in private because they have time based split. It turned out to be [true](https://www.kaggle.com/c/rossmann-store-sales/forums/t/17898/leaderboard-shakeup).
+RMSPE was quite different for different prediction ranges. For the same store it could go from TODO to TODO with the same model. It made me think that public leaderboard position is going to change a lot in private leaderboard because they have time based split. It turned out to be [true](https://www.kaggle.com/c/rossmann-store-sales/forums/t/17898/leaderboard-shakeup).
 
-Grid search was used to find `glmnet` `alpha` parameter. The best `alpha` was 1 which corresponds to [Lasso  regularization](https://en.wikipedia.org/wiki/Least_squares#Lasso_method). Choice of `lambda` is implemented in [cv.glmnet](http://www.inside-r.org/packages/cran/glmnet/docs/cv.glmnet) but it uses standard k-fold cross-validation. I reimplemented it to use time-based cross-validation.
+Grid search was used to find `glmnet` `alpha` parameter. The best `alpha` was 1 which corresponds to [Lasso  regularization](https://en.wikipedia.org/wiki/Least_squares#Lasso_method). Choice of `lambda` is implemented in [cv.glmnet](http://www.inside-r.org/packages/cran/glmnet/docs/cv.glmnet) but it uses standard k-fold cross-validation. I reimplemented it with time-based cross-validation.
 
 [0.985 correction](https://www.kaggle.com/c/rossmann-store-sales/forums/t/17601/correcting-log-sales-prediction-for-rmspe/99643#post99643) was insignificant on cross-validation (effect was less than standard deviation of RMSPE from different folds) but helped on leaderboard both private and public.
 
 Pairwise feature combinations had positive effect for glmnet on cross-validation but didn't work on leaderboard.
 
-As a result single interpretable per store glmnet model gave prediction error (RMSPE)  0.11974 (516th place on leaderboard), single xgboost model - 0.11839 (379th), their average - 0.11262 (66th).
+As a result single per store glmnet model gave prediction error (RMSPE)  0.11974 (516th place on leaderboard), single all stores xgboost model - 0.11839 (379th), their average - 0.11262 (66th). Complicated ensemble models are good for competitions but practice it might be better to have 0.007 increase in error and simple interpretable model.
