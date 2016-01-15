@@ -50,4 +50,4 @@ Grid search was used to find `glmnet` `alpha` parameter. The best `alpha` was 1 
 
 Pairwise feature combinations had positive effect for glmnet on cross-validation but didn't work on leaderboard.
 
-As a result single per store glmnet model gave prediction error (RMSPE)  0.11974 (516th place on leaderboard), single all stores xgboost model - 0.11839 (379th), their average - 0.11262 (66th). Complicated ensemble models are good for competitions but practice it might be better to have 0.007 increase in error and simple interpretable model.
+As a result single per store glmnet model gave prediction error (RMSPE) on private leaderboard 0.11974 (516th place on leaderboard), single all stores xgboost model - 0.11839 (379th), their average - 0.11262 (66th). Complicated ensemble models are good for competitions but practice it might be better to have 0.007 increase in error and simple interpretable model.
