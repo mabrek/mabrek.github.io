@@ -13,7 +13,7 @@ In the beginning my idea was to check how good single interpretable model can be
 
 To validate model quality I implemented time-based cross-validation as described in [Forecasting: principles and practice](https://www.otexts.org/fpp/2/5)
 
-Visualization helped a lot in identifying features and sources of errors.
+Interactive visualization helped a lot in identifying features and sources of errors.
 
 ![store forecast with error]({{ site.url }}/img/kaggle-forecasting.png)
 
