@@ -15,7 +15,7 @@ To validate model quality I implemented time-based cross-validation as described
 
 Visualization helped a lot in identifying features and sources of errors.
 
-TODO view_sales image
+![store forecast with error]({{ site.url }}/img/kaggle-forecasting.png)
 
 I tried [`forecast::tbats`](http://www.inside-r.org/packages/cran/forecast/docs/tbats) (separate models per each store) but results were quite bad. Influence of non-seasonal factors was big but [tbats can't](http://robjhyndman.com/hyndsight/tbats-with-regressors/) [use regressors] (http://robjhyndman.com/hyndsight/dailydata/). [ARIMA](http://www.inside-r.org/packages/cran/forecast/docs/auto.arima) model can use regressors but for long-term forecasts it decays to [constant or linear trend](https://www.otexts.org/fpp/8/5). So I continued to evaluate different kinds of linear models. As more and more feature were added simple linear model started to get worse so I switched to [glmnet](http://www.inside-r.org/packages/cran/glmnet/docs/glmnet) which is able to select subset of features.
 
@@ -42,7 +42,7 @@ Dropped outliers in train set for glmnet. Outliers selected by `> 2.5 * median a
 
 Initially I used 10 cross-validation folds with 6 weeks length cut from the end of train set with 2 weeks step (~4.5 months total) but then found that closest to 2014 folds produce large errors for stores with missing in 2014 data. Then switched to 15 folds with 3 days step to not get too close to 2014 which improved predictions for those stores.
 
-RMSPE was quite different for different prediction ranges. For the same store it could go from TODO to TODO with the same model. It made me think that public leaderboard position is going to change a lot in private leaderboard because they have time based split. It turned out to be [true](https://www.kaggle.com/c/rossmann-store-sales/forums/t/17898/leaderboard-shakeup).
+RMSPE was quite different for different prediction ranges. For the same store it could go from 0.103 to 0.125 with the same model. It made me think that public leaderboard position is going to change a lot in private leaderboard because they have time based split. It turned out to be [true](https://www.kaggle.com/c/rossmann-store-sales/forums/t/17898/leaderboard-shakeup).
 
 Grid search was used to find `glmnet` `alpha` parameter. The best `alpha` was 1 which corresponds to [Lasso  regularization](https://en.wikipedia.org/wiki/Least_squares#Lasso_method). Choice of `lambda` is implemented in [cv.glmnet](http://www.inside-r.org/packages/cran/glmnet/docs/cv.glmnet) but it uses standard k-fold cross-validation. I reimplemented it with time-based cross-validation.
 
