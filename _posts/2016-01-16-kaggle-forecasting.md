@@ -3,7 +3,7 @@ layout: post
 title:  "My Top 10% Solution for Kaggle Rossman Store Sales Forecasting Competition"
 ---
 
-_This is the first time I have participated in a machine learning competition and my result turned out to be quite good: [66th out of 3303](https://www.kaggle.com/mabrek/results). I used R and an average of two models: glmnet and xgboost with a lot of feature engineering_
+_This is the first time I have participated in a machine learning competition and my result turned out to be quite good: [66th out of 3303](https://www.kaggle.com/mabrek/results). I used R and an average of two models: glmnet and xgboost with a lot of feature engineering._
 
 The goal of the [competition](https://www.kaggle.com/c/rossmann-store-sales) was to predict 6 weeks of daily `Sales` in 1115 stores located in different parts of Germany based on 2.5 years of historical daily sales.
 
@@ -30,7 +30,7 @@ Interactive visualization helped a lot in identifying features and sources of er
 
 Initially I tried [`forecast::tbats`](http://www.inside-r.org/packages/cran/forecast/docs/tbats) (a separate model for each store) but the results were quite bad. The influence of non-seasonal factors was big but [tbats can't](http://robjhyndman.com/hyndsight/tbats-with-regressors/) [use external regressors](http://robjhyndman.com/hyndsight/dailydata/). Next I considered using [ARIMA](http://www.inside-r.org/packages/cran/forecast/docs/auto.arima), as it can use regressors, but for long-term forecasts it decays to [constant or linear trends](https://www.otexts.org/fpp/8/5). So I continued to evaluate different kinds of linear models. As more and more features were added, the simple linear model started to get worse so I switched to [glmnet](http://www.inside-r.org/packages/cran/glmnet/docs/glmnet) which is able to select subsets of features.
 
-There was some similarity between `Sales` and count data so I tried Poisson regression as suggested in [Generalised Linear Models in R](http://www.magesblog.com/2015/08/generalised-linear-models-in-r.html). This, however, resulted in a larger error in cross-validation than predicting `log(Sales)` using [Gaussian family](https://cran.r-project.org/web/packages/glmnet/vignettes/glmnet_beta.html#lin) of generalized linear model.
+There was some similarity between `Sales` and count data so I tried Poisson regression as suggested in [Generalized Linear Models in R](http://www.magesblog.com/2015/08/generalised-linear-models-in-r.html). This, however, resulted in a larger error in cross-validation than predicting `log(Sales)` using [Gaussian family](https://cran.r-project.org/web/packages/glmnet/vignettes/glmnet_beta.html#lin) of generalized linear model.
 
 [RMSPE evaluation criteria](https://www.kaggle.com/c/rossmann-store-sales/details/evaluation) is asymmetric (see [discussion of MAPE](https://www.otexts.org/fpp/2/5)) and sensitive to outliers. The typical range for different models and different stores was between 0.08 and 0.25. If a model predicted a sales value of 1000 on a specific day (for example) and the actual sales were 10 because there was an unaccounted holiday,  then  RMSPE would be equal to 99 for that day which would  make an otherwise good model look really bad on average.
 
@@ -51,7 +51,7 @@ The training set contained more stores than were present in the test set. I drop
 
 I dropped outliers from the training set for glmnet. Outliers were selected by `> 2.5 * median absolute residual` from `lm` trained on a small set of features per store.
 
-Initially I used 10 cross-validation folds with 6 weeks length cut from the end of train set with 2 weeks step (~4.5 months total) but then found that closest to 2014 folds produce large errors for stores with missing in 2014 data. Then switched to 15 folds with 3 days step to not get too close to 2014 which improved predictions for those stores.
+Initially I used 10 cross-validation folds with 6 weeks length cut from the end of training set with 2 weeks step (~4.5 months total) but then found that closest to 2014 folds produce large errors for stores with missing in 2014 data. Then switched to 15 folds with 3 days step to not get too close to 2014 which improved predictions for those stores.
 
 RMSPE was quite different for different prediction ranges. For the same store it could go from 0.103 to 0.125 with the same model. It made me think that public leaderboard position is going to change a lot in private leaderboard because they have time based split. It turned out to be [true](https://www.kaggle.com/c/rossmann-store-sales/forums/t/17898/leaderboard-shakeup).
 
