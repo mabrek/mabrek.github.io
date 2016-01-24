@@ -3,13 +3,24 @@ layout: post
 title:  "My Top 10% Solution for Kaggle Rossman Store Sales Forecasting Competition"
 ---
 
-_It's the first time I participated in machine learning competition and my result turned out to be quite good: [66th from 3303](https://www.kaggle.com/mabrek/results). I used R and an average of two models: glmnet and xgboost with a lot of feature engineering_
+_This is the first time I have participated in a machine learning competition and my result turned out to be quite good: [66th out of 3303](https://www.kaggle.com/mabrek/results). I used R and an average of two models: glmnet and xgboost with a lot of feature engineering_
 
 The goal of the [competition](https://www.kaggle.com/c/rossmann-store-sales) was to predict 6 weeks of daily `Sales` in 1115 stores located in different parts of Germany based on 2.5 years of historical daily sales.
 
-The first thing I tried after importing data was to convert it into multivariate regular time series and run [SVD]({{ site.url }}/blog/multivariate-svd-pca/). It showed that the majority of stores don't have upwards or downwards trends, seasonal variation is present but mostly as Christmas effect, Sunday is non-working day, and there is a strange cycle with 2 weeks length, which was an effect of running `Promo` action every other week. There were group of stores that don't close on Sunday in summer, some stores had strong yearly pattern, some stores had sales continuously growing (or decreasing) in time, group of stores that had last half year of 2014 data missing. I selected several stores as examples from different groups to check various ideas on them first.
+The first thing I tried after importing data was to convert it into multivariate regular time series and run [SVD]({{ site.url }}/blog/multivariate-svd-pca/). The result highlighted several interesting details:
 
-In the beginning my idea was to check how good single interpretable model can be. There were two simple benchmark models ([median](https://www.kaggle.com/shearerp/rossmann-store-sales/interactive-sales-visualization), [geometric mean](https://www.kaggle.com/shearerp/rossmann-store-sales/store-dayofweek-promo-0-13952)) on forum which I used as a starting point.
+  * the majority of stores didn't have upward or downward trends
+  * seasonal variation was present but mostly as a Christmas effect
+  * Sunday was a non-working day in a  majority of stores
+  * there was a strange 2 week cycle which was an effect of running `Promo` actions every other week
+  * there were group of stores that didn't close on Sunday in summer
+  * some stores had strong yearly pattern
+  * some stores showed continuous sales increases and other decreases over time
+  * several stores were missing data from the second  half of 2014
+
+I sampled several stores from different groups to check various ideas on them first.
+
+In the beginning my idea was to check how good a single interpretable model could be. There were two simple benchmark models ([median](https://www.kaggle.com/shearerp/rossmann-store-sales/interactive-sales-visualization) and [geometric mean](https://www.kaggle.com/shearerp/rossmann-store-sales/store-dayofweek-promo-0-13952)) on the competition forum which I used as a starting point.
 
 To validate model quality I implemented time-based cross-validation as described in [Forecasting: principles and practice](https://www.otexts.org/fpp/2/5)
 
@@ -17,28 +28,28 @@ Interactive visualization helped a lot in identifying features and sources of er
 
 ![store forecast with error]({{ site.url }}/img/kaggle-forecasting.png)
 
-I tried [`forecast::tbats`](http://www.inside-r.org/packages/cran/forecast/docs/tbats) (separate models per each store) but results were quite bad. Influence of non-seasonal factors was big but [tbats can't](http://robjhyndman.com/hyndsight/tbats-with-regressors/) [use regressors] (http://robjhyndman.com/hyndsight/dailydata/). [ARIMA](http://www.inside-r.org/packages/cran/forecast/docs/auto.arima) model can use regressors but for long-term forecasts it decays to [constant or linear trend](https://www.otexts.org/fpp/8/5). So I continued to evaluate different kinds of linear models. As more and more feature were added simple linear model started to get worse so I switched to [glmnet](http://www.inside-r.org/packages/cran/glmnet/docs/glmnet) which is able to select subset of features.
+Initially I tried [`forecast::tbats`](http://www.inside-r.org/packages/cran/forecast/docs/tbats) (a separate model for each store) but the results were quite bad. The influence of non-seasonal factors was big but [tbats can't](http://robjhyndman.com/hyndsight/tbats-with-regressors/) [use external regressors](http://robjhyndman.com/hyndsight/dailydata/). Next I considered using [ARIMA](http://www.inside-r.org/packages/cran/forecast/docs/auto.arima), as it can use regressors, but for long-term forecasts it decays to [constant or linear trends](https://www.otexts.org/fpp/8/5). So I continued to evaluate different kinds of linear models. As more and more features were added, the simple linear model started to get worse so I switched to [glmnet](http://www.inside-r.org/packages/cran/glmnet/docs/glmnet) which is able to select subsets of features.
 
-There is some similarity between `Sales` and count data so I tried Poisson regression as suggested in [Generalised Linear Models in R](http://www.magesblog.com/2015/08/generalised-linear-models-in-r.html) but it resulted in larger error in cross-validation than predicting `log(Sales)` using [Gaussian family](https://cran.r-project.org/web/packages/glmnet/vignettes/glmnet_beta.html#lin) of generalized linear model.
+There was some similarity between `Sales` and count data so I tried Poisson regression as suggested in [Generalised Linear Models in R](http://www.magesblog.com/2015/08/generalised-linear-models-in-r.html). This, however, resulted in a larger error in cross-validation than predicting `log(Sales)` using [Gaussian family](https://cran.r-project.org/web/packages/glmnet/vignettes/glmnet_beta.html#lin) of generalized linear model.
 
-[RMSPE evaluation criteria](https://www.kaggle.com/c/rossmann-store-sales/details/evaluation) is asymmetric (see [discussion of MAPE](https://www.otexts.org/fpp/2/5)) and sensitive to outliers. Typical range for different models and different stores was between 0.08 and 0.25. Single holiday missed by the model with prediction 1000 and actual sales 10 results in RMSPE 99 for that point which makes otherwise good model look really bad on average.
+[RMSPE evaluation criteria](https://www.kaggle.com/c/rossmann-store-sales/details/evaluation) is asymmetric (see [discussion of MAPE](https://www.otexts.org/fpp/2/5)) and sensitive to outliers. The typical range for different models and different stores was between 0.08 and 0.25. If a model predicted a sales value of 1000 on a specific day (for example) and the actual sales were 10 because there was an unaccounted holiday,  then  RMSPE would be equal to 99 for that day which would  make an otherwise good model look really bad on average.
 
-Best per store glmnet model scored worse than simple [xgboost](https://github.com/dmlc/xgboost) [published on forum](https://www.kaggle.com/abhilashawasthi/rossmann-store-sales/xgb-rossmann/run/86608). Tree based regression models don't extrapolate well because they [give constant predictions outside of train range](https://www.kaggle.com/forums/f/15/kaggle-forum/t/6609/why-does-extrapolating-a-sine-curve-via-a-randomforest-gives-a-straight). Number of stores with long-range trend was small and the majority had quite stable sales over time so I decided to give xgboost a try and fed it with the same features as I did for linear model (without [one-hot encoding](https://en.wikipedia.org/wiki/One-hot) for categorical features).
+The best per store glmnet model scored worse than  [xgboost](https://github.com/dmlc/xgboost), [also published on the forum](https://www.kaggle.com/abhilashawasthi/rossmann-store-sales/xgb-rossmann/run/86608). Tree based regression models don't extrapolate well because they [predict with constant value anything outside their training ranges](https://www.kaggle.com/forums/f/15/kaggle-forum/t/6609/why-does-extrapolating-a-sine-curve-via-a-randomforest-gives-a-straight). The number of stores with long-range trends was small and the majority had quite stable sales over time, so I decided to give xgboost a try and feed it with the same features as I did for linear model (without [one-hot encoding](https://en.wikipedia.org/wiki/One-hot) for categorical features).
 
 Feature engineering:
 
  - 5 fourier terms generated by [`forecast::fourier`](http://www.inside-r.org/packages/cran/forecast/docs/fourier) with frequency=365;
- - `Days` and `log(Days)` since beginning of train set to capture trends (exponential and linear because `log(Sales)` is predicted);
- - exponential and linear growth before / decay after events like starting promo, state holidays of different length (similar to [foregen](https://github.com/republicwireless-open/foregen) which I discovered later);
- - binary features of different length which took value 1 several days before/after events like start/end of `Promo`, `Promo2`, `StateHoliday`, refurbishments;
+ - `Days` and `log(Days)` since the beginning of the training set to capture trends (exponential and linear because `log(Sales)` is predicted);
+ - exponential and linear growth before events or decay after events such as starting `Promo` or state holidays (similar to [foregen](https://github.com/republicwireless-open/foregen) which I discovered later);
+ - binary features which took value 1 for several days before or after events including the start and end of `Promo`, `Promo2`, `StateHoliday`, and refurbishments;
  - binary features like `ClosesTomorrow`, `WasClosedYesterday`, `WasClosedOnSunday`;
- - day of week, day of month, month number, year as categorical for xbgoost and n-1 binary features for glmnet (described at https://www.otexts.org/fpp/5/2 ).
+ - day of week, day of month, month number, year as categorical features for xbgoost and n-1 binary features for glmnet (described at https://www.otexts.org/fpp/5/2 ).
 
-For some stores with large error in cross-validation I dropped data before manually selected (by staring at `Sales` time series graphs) changepoints.
+For some stores with large error in cross-validation I dropped data before manually selected (by examining `Sales` time series graphs) changepoints.
 
-Training set contained more stores that were present in the test set. I dropped those extra stores from the train set for xgboost.
+The training set contained more stores than were present in the test set. I dropped those extra stores from the training set for xgboost.
 
-Dropped outliers in train set for glmnet. Outliers selected by `> 2.5 * median absolute residual` from `lm` trained on small set of features per store.
+I dropped outliers from the training set for glmnet. Outliers were selected by `> 2.5 * median absolute residual` from `lm` trained on a small set of features per store.
 
 Initially I used 10 cross-validation folds with 6 weeks length cut from the end of train set with 2 weeks step (~4.5 months total) but then found that closest to 2014 folds produce large errors for stores with missing in 2014 data. Then switched to 15 folds with 3 days step to not get too close to 2014 which improved predictions for those stores.
 
