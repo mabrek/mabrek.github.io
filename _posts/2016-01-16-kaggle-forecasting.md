@@ -51,16 +51,16 @@ The training set contained more stores than were present in the test set. I drop
 
 I dropped outliers from the training set for glmnet. Outliers were selected by `> 2.5 * median absolute residual` from `lm` trained on a small set of features per store.
 
-Initially I used 10 cross-validation folds with 6 weeks length cut from the end of training set with 2 weeks step (~4.5 months total) but then found that closest to 2014 folds produce large errors for stores with missing in 2014 data. Then switched to 15 folds with 3 days step to not get too close to 2014 which improved predictions for those stores.
+Initially I used 10 cross-validation folds with 6 weeks length starting from the end of the training set with 2 weeks step (~4.5 months total) but then found that closest to 2014 folds produce large errors for stores with missing in 2014 data. Then I switched to 15 folds with 3 days step to avoid being too close to 2014 which improved predictions for those stores.
 
 RMSPE was quite different for different prediction ranges. For the same store it could go from 0.103 to 0.125 with the same model. It made me think that public leaderboard position is going to change a lot in private leaderboard because they have time based split. It turned out to be [true](https://www.kaggle.com/c/rossmann-store-sales/forums/t/17898/leaderboard-shakeup).
 
-Grid search was used to find `glmnet` `alpha` parameter. The best `alpha` was 1 which corresponds to [Lasso  regularization](https://en.wikipedia.org/wiki/Least_squares#Lasso_method). Choice of `lambda` is implemented in [cv.glmnet](http://www.inside-r.org/packages/cran/glmnet/docs/cv.glmnet) but it uses standard k-fold cross-validation. I reimplemented it with time-based cross-validation.
+Grid search was used to find `glmnet` `alpha` parameter. The best `alpha` was 1 which corresponds to [Lasso  regularization](https://en.wikipedia.org/wiki/Least_squares#Lasso_method). Choice of `lambda` is implemented in [cv.glmnet](http://www.inside-r.org/packages/cran/glmnet/docs/cv.glmnet) but it uses a standard k-fold cross-validation. I reimplemented it with a time-based cross-validation.
 
-[0.985 correction](https://www.kaggle.com/c/rossmann-store-sales/forums/t/17601/correcting-log-sales-prediction-for-rmspe/99643#post99643) was insignificant on cross-validation (effect was less than standard deviation of RMSPE from different folds) but helped on leaderboard both private and public.
+[0.985 correction](https://www.kaggle.com/c/rossmann-store-sales/forums/t/17601/correcting-log-sales-prediction-for-rmspe/99643#post99643) was insignificant on cross-validation (effect was less than standard deviation of RMSPE from different folds) but helped on both private and public leaderboards.
 
 Pairwise feature combinations had positive effect for glmnet on cross-validation but didn't work on leaderboard.
 
-As a result single per store glmnet model gave prediction error (RMSPE) on private leaderboard 0.11974 (516th place), single all stores xgboost model - 0.11839 (379th), their average - 0.11262 (66th). Complicated ensemble models are good for competitions but practice it might be better to have 0.007 increase in error and simple interpretable model.
+As a result single per store glmnet model gave prediction error (RMSPE) on private leaderboard 0.11974 (516th place), single all stores xgboost model - 0.11839 (379th), their average - 0.11262 (66th). Complicated ensemble models are good for competitions but in practice it might be better to have 0.007 increase in error and simple interpretable model.
 
 Source code is available at [github.com/mabrek/kaggle-rossman-store-sales](https://github.com/mabrek/kaggle-rossman-store-sales)
