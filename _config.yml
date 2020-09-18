@@ -4,4 +4,4 @@ highlighter: rouge
 safe: true
 lsi: false
 permalink: /blog/:title/
-url: http://mabrek.github.io
+url: https://mabrek.github.io
